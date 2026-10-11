@@ -1,5 +1,6 @@
 import { startBackgroundSync as start } from "@doska/sync"
 import { runtime } from "../../runtime"
+import { isOfflineAcknowledged } from "./connection"
 import { sync } from "./sync-engine"
 
 const DEFAULT_SYNC_INTERVAL = 3_000
@@ -18,5 +19,9 @@ export function startBackgroundSync(intervalMs?: number): () => void {
       ? intervalMs
       : DEFAULT_SYNC_INTERVAL
   const { foreground, net } = runtime()
-  return start(() => void sync.reconcile(), ms, { foreground, net })
+  return start(() => void sync.reconcile(), ms, {
+    foreground,
+    net,
+    paused: () => !net.online() || isOfflineAcknowledged(),
+  })
 }

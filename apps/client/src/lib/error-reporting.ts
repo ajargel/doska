@@ -1,6 +1,12 @@
 import { createElement } from "react"
 import { toast } from "react-hot-toast"
-import { errorMessage, reportError, setErrorReporter } from "@doska/core"
+import {
+  errorMessage,
+  isNetworkError,
+  isOfflineAcknowledged,
+  reportError,
+  setErrorReporter,
+} from "@doska/core"
 import { ErrorToast } from "@/components/toasts/error/error-toast"
 
 // One id for every failure
@@ -12,6 +18,7 @@ const TOAST_ID = "error"
 export function initErrorReporting(): void {
   setErrorReporter((error) => {
     console.error(error)
+    if (isOfflineAcknowledged() && isNetworkError(error)) return
     toast.custom(
       (toastInstance) =>
         createElement(ErrorToast, {
