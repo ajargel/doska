@@ -9,25 +9,28 @@ import {
   TriangleAlert,
 } from "lucide-react"
 import { useLoginPrompt } from "@/providers/login-prompt/login-prompt-context"
-import { sync, useConnection, type Connection } from "@doska/core"
+import {
+  sync,
+  useConnection,
+  useOfflineAcknowledged,
+  type Connection,
+} from "@doska/core"
 import { useAuth, useSyncStatus } from "@/lib/hooks"
 
 /** Resolves the live sync state into the icon, label, and tint to render. */
-function view({ status, pending }: SyncState, connection: Connection) {
-  if (connection.status === "dropped")
+function view(
+  { status, pending }: SyncState,
+  connection: Connection,
+  acknowledged: boolean
+) {
+  if (connection.status === "dropped") {
+    const className = acknowledged
+      ? "text-muted-foreground"
+      : "text-destructive"
     return connection.reason === "offline"
-      ? {
-          Icon: CloudOff,
-          label: "Offline",
-          spin: false,
-          className: "text-destructive",
-        }
-      : {
-          Icon: TriangleAlert,
-          label: "Sync failed",
-          spin: false,
-          className: "text-destructive",
-        }
+      ? { Icon: CloudOff, label: "Offline", spin: false, className }
+      : { Icon: TriangleAlert, label: "Sync failed", spin: false, className }
+  }
 
   if (status === "syncing")
     return {
@@ -69,6 +72,7 @@ function view({ status, pending }: SyncState, connection: Connection) {
 export function SyncIndicator() {
   const state = useSyncStatus()
   const connection = useConnection()
+  const acknowledged = useOfflineAcknowledged()
   const { authed } = useAuth()
   const openLogin = useLoginPrompt()
 
@@ -91,7 +95,7 @@ export function SyncIndicator() {
     )
   }
 
-  const { Icon, label, spin, className } = view(state, connection)
+  const { Icon, label, spin, className } = view(state, connection, acknowledged)
 
   return (
     <Button
