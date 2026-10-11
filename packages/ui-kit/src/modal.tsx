@@ -85,6 +85,8 @@ function ModalHeader({
       data-slot="modal-header"
       className={cn(
         "flex items-center justify-between gap-2 py-2 px-3",
+        // full-screen below md, so it sits under the traffic lights
+        "max-md:in-[.window-controls]:pl-24",
         className
       )}
     >

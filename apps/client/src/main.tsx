@@ -22,6 +22,7 @@ import { UpdateToast } from "@/components/toasts/update/update-toast"
 import { OfflineToast } from "@/components/toasts/offline/offline-toast"
 import { UndoToaster } from "@/components/toasts/card-delete/undo-toaster"
 import { WindowDragRegion } from "@/components/window-drag-region"
+import { WindowControlsFlag } from "@/components/window-controls-flag"
 import { WindowSyncListener } from "@/components/card-window/window-sync-listener"
 import "./index.css"
 
@@ -88,6 +89,7 @@ if (isPublicLink) {
               <UpdateToast />
               <OfflineToast />
               <WindowDragRegion />
+              <WindowControlsFlag />
               <WindowSyncListener />
             </LoginPromptProvider>
           </ThemeProvider>
