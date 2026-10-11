@@ -1,9 +1,11 @@
 import type { DroppableProvidedProps } from "@hello-pangea/dnd"
-import type { ReactNode, Ref } from "react"
+import { createElement, type ReactNode, type Ref } from "react"
+import { toast } from "react-hot-toast"
 import { Button, cn } from "@doska/ui-kit"
 import { Check, FoldVertical, Plus, UnfoldVertical } from "lucide-react"
 import { ColumnSwatch } from "./column-swatch"
 import { ColumnTitle } from "./column-title"
+import { AddCardBlockedToast } from "@/components/toasts/add-card-blocked/add-card-blocked-toast"
 
 interface IProps {
   title: string
@@ -98,10 +100,20 @@ export function ColumnView({
         {onAddCard && (
           <Button
             variant="muted"
-            onClick={onAddCard}
-            disabled={!!addCardDisabledReason}
+            onClick={() => {
+              if (!addCardDisabledReason) return onAddCard()
+              toast.custom(
+                (toastInstance) =>
+                  createElement(AddCardBlockedToast, {
+                    visible: toastInstance.visible,
+                    reason: addCardDisabledReason,
+                  }),
+                { id: "add-card-blocked", duration: 2500 }
+              )
+            }}
+            aria-disabled={!!addCardDisabledReason}
             aria-label={`Add card to ${title}`}
-            className="mb-3 w-full"
+            className={cn("mb-3 w-full", addCardDisabledReason && "opacity-50")}
             tooltip={addCardDisabledReason ?? false}
           >
             <Plus />
