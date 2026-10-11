@@ -1,6 +1,11 @@
-import { fetchSession, onSessionExpired, SIGNED_OUT } from "./api/auth"
+import {
+  fetchSession,
+  markSignedIn,
+  onSessionExpired,
+  SIGNED_OUT,
+} from "./api/auth"
 import { seed } from "./api/db/db"
-import { migrateUserKey, reconcileIdentity } from "./api/identity"
+import { migrateUserKey, reconcileIdentity, stampedUser } from "./api/identity"
 import { purgeExpired } from "./api/operations"
 import { seedClock, startBackgroundSync, sync } from "./api/sync"
 import { keys } from "./data/keys"
@@ -28,6 +33,9 @@ export async function bootstrapClient(syncIntervalMs?: number): Promise<void> {
   // Before the session, and so before any sign-in can move the server URL out
   // from under the id this stamps.
   await migrateUserKey()
+
+  // a device that already had a user has signed in
+  if (await stampedUser()) markSignedIn()
 
   // Whose data is on this device, settled before the first reconcile can run
   const session = await fetchSession().catch(() => null)

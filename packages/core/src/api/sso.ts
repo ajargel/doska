@@ -1,4 +1,5 @@
 import { authClient } from "./auth-client"
+import { markSignedIn } from "./auth"
 import { appFetch } from "./fetch"
 import { apiUrl, isSyncConfigured } from "./server"
 
@@ -19,6 +20,7 @@ export async function ssoSignInUrl(
   providerId: string,
   callbackURL: string
 ): Promise<string> {
+  markSignedIn()
   const { data, error } = await authClient().signIn.oauth2({
     providerId,
     callbackURL,

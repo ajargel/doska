@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/client"
 import { runtime } from "../runtime"
 import { authClient } from "./auth-client"
 import { isSyncConfigured, setServerUrl } from "./server"
@@ -13,6 +14,18 @@ export type Session = {
 
 const expiryListeners = new Set<() => void>()
 
+// Survives sign-out on purpose: only a device that never tried skips the server.
+const SIGNED_IN_KEY = "deck:signed-in"
+
+/** Call before any sign-in starts: web sign-in reloads the page before a session can be read. */
+export function markSignedIn(): void {
+  runtime().kv.set(SIGNED_IN_KEY, "1")
+}
+
+function hasSignedIn(): boolean {
+  return runtime().kv.get(SIGNED_IN_KEY) !== null
+}
+
 /** Fires when the server rejects a request as unauthenticated, so the app can
  * flip to signed-out from one place rather than at every call site. */
 export function onSessionExpired(listener: () => void): () => void {
@@ -26,6 +39,10 @@ export function sessionExpired(): void {
   for (const listener of expiryListeners) listener()
 }
 
+export function isUnauthorized(error: unknown): boolean {
+  return error instanceof ORPCError && error.status === 401
+}
+
 export const SIGNED_OUT: Session = {
   authed: false,
   login: null,
@@ -35,7 +52,7 @@ export const SIGNED_OUT: Session = {
 }
 
 export async function fetchSession(): Promise<Session> {
-  if (!isSyncConfigured()) return SIGNED_OUT
+  if (!isSyncConfigured() || !hasSignedIn()) return SIGNED_OUT
 
   const { data, error } = await authClient().getSession()
   if (error) {
@@ -65,6 +82,7 @@ function toSession(user: {
  * Returns the session it opened, so the caller doesn't re-fetch to learn the
  * role it just signed in with. */
 export async function login(login: string, password: string): Promise<Session> {
+  markSignedIn()
   const { data, error } = await authClient().signIn.username({
     username: login,
     password,
@@ -75,6 +93,7 @@ export async function login(login: string, password: string): Promise<Session> {
 
 /** Signs in with the token a desktop browser sign-in ended with. */
 export async function loginWithToken(token: string): Promise<Session> {
+  markSignedIn()
   runtime().auth.capture(token)
   const session = await fetchSession()
   if (!session.authed) {

@@ -4,6 +4,7 @@ import {
   errorMessage,
   isNetworkError,
   isOfflineAcknowledged,
+  isUnauthorized,
   reportError,
   setErrorReporter,
 } from "@doska/core"
@@ -19,6 +20,7 @@ export function initErrorReporting(): void {
   setErrorReporter((error) => {
     console.error(error)
     if (isOfflineAcknowledged() && isNetworkError(error)) return
+    if (isUnauthorized(error)) return
     toast.custom(
       (toastInstance) =>
         createElement(ErrorToast, {

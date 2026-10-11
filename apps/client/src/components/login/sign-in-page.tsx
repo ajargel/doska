@@ -1,7 +1,7 @@
 import { Button, Input } from "@doska/ui-kit"
 import { useMemo, useState } from "react"
 import { useSearch } from "wouter"
-import { authClient, apiUrl } from "@doska/core"
+import { authClient, apiUrl, markSignedIn } from "@doska/core"
 import { useAuth } from "@/lib/hooks"
 import { DesktopHandoff } from "./desktop-handoff"
 import { SsoButtons } from "./sso-buttons"
@@ -47,6 +47,7 @@ export function SignInPage() {
     e.preventDefault()
     setPending(true)
     setFailed(false)
+    markSignedIn()
 
     // The plugin answers this very POST with a 302 into the pending OAuth flow
     // (it hooks any response that sets a session cookie), so the response is not
