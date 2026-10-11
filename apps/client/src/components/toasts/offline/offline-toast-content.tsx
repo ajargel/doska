@@ -3,10 +3,14 @@ import { Button, cn, Toast } from "@doska/ui-kit"
 interface IProps {
   visible: boolean
   onRetry: () => void
-  onDismiss: () => void
+  onContinueOffline: () => void
 }
 
-export function OfflineToastContent({ visible, onRetry, onDismiss }: IProps) {
+export function OfflineToastContent({
+  visible,
+  onRetry,
+  onContinueOffline,
+}: IProps) {
   return (
     <Toast visible={visible}>
       <div
@@ -35,10 +39,9 @@ export function OfflineToastContent({ visible, onRetry, onDismiss }: IProps) {
           size="sm"
           variant="ghost"
           className="shrink-0"
-          aria-label="Dismiss"
-          onClick={onDismiss}
+          onClick={onContinueOffline}
         >
-          Close
+          Continue offline
         </Button>
       </div>
     </Toast>

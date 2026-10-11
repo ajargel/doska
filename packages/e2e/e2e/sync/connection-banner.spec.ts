@@ -39,7 +39,7 @@ test.describe("connection banner", () => {
     await expect(connectionBanner(page)).toBeVisible({ timeout: 15_000 })
 
     await connectionBanner(page)
-      .getByRole("button", { name: "Dismiss" })
+      .getByRole("button", { name: "Continue offline" })
       .click()
     await expect(connectionBanner(page)).toHaveCount(0)
 

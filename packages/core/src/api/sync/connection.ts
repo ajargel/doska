@@ -15,6 +15,8 @@ const OK: Connection = { status: "ok" }
 const LOCAL: Connection = { status: "local" }
 
 let connection: Connection = OK
+// The user chose to work offline for this drop; cleared once sync recovers.
+let acknowledged = false
 let started = false
 const listeners = new Set<() => void>()
 
@@ -43,11 +45,16 @@ function same(a: Connection, b: Connection): boolean {
   return a.reason === b.reason
 }
 
+function notify() {
+  for (const listener of listeners) listener()
+}
+
 function recompute() {
   const next = derive()
   if (same(next, connection)) return
   connection = next
-  for (const listener of listeners) listener()
+  if (next.status !== "dropped") acknowledged = false
+  notify()
 }
 
 /** Wires the store to its inputs, once per session. */
@@ -69,4 +76,29 @@ function subscribe(listener: () => void): () => void {
 /** Subscribe to the app's connection health. */
 export function useConnection(): Connection {
   return useSyncExternalStore(subscribe, () => connection)
+}
+
+/** Silences offline notices until the connection comes back. */
+export function continueOffline(): void {
+  if (connection.status !== "dropped" || acknowledged) return
+  acknowledged = true
+  notify()
+}
+
+export function isOfflineAcknowledged(): boolean {
+  return acknowledged
+}
+
+export function useOfflineAcknowledged(): boolean {
+  return useSyncExternalStore(subscribe, () => acknowledged)
+}
+
+/** The device is offline, or the user chose to work offline. */
+export function useServerPaused(): boolean {
+  return useSyncExternalStore(
+    subscribe,
+    () =>
+      acknowledged ||
+      (connection.status === "dropped" && connection.reason === "offline")
+  )
 }

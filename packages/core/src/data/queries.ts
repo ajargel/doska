@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { countOwnedBoards, listAccounts } from "../api/accounts"
 import { publicBoardToken, publishedBoards } from "../api/boards"
 import { fetchSession } from "../api/auth"
+import { useServerPaused } from "../api/sync/connection"
 import { fetchLinkedProviders, fetchSsoProviders } from "../api/sso"
 import { fetchPublicBoard } from "../api/public"
 import {
@@ -45,10 +46,12 @@ export function useLinkedProviders(userId: string | null) {
  * only gates sync, so this never blocks the app — it just drives the sign-in UI.
  */
 export function useSession() {
+  const paused = useServerPaused()
   return useQuery({
     queryKey: keys.session,
     queryFn: fetchSession,
     networkMode: "always",
+    enabled: !paused,
   })
 }
 

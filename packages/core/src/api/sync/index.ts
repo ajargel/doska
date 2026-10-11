@@ -1,6 +1,12 @@
 export { startBackgroundSync } from "./background-sync"
 export { sync } from "./sync-engine"
 export type { SyncState } from "@doska/sync"
-export { useConnection } from "./connection"
+export {
+  continueOffline,
+  isOfflineAcknowledged,
+  useConnection,
+  useOfflineAcknowledged,
+  useServerPaused,
+} from "./connection"
 export type { Connection } from "./connection"
 export { seedClock } from "./hlc"

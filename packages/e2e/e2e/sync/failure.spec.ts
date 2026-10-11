@@ -17,7 +17,7 @@ async function failSync(page: Page): Promise<void> {
     route.fulfill({ status: 500, body: "boom" })
   )
   await expect(connectionBanner(page)).toBeVisible({ timeout: 15_000 })
-  await connectionBanner(page).getByRole("button", { name: "Dismiss" }).click()
+  await connectionBanner(page).getByRole("button", { name: "Continue offline" }).click()
   await expect(connectionBanner(page)).toHaveCount(0)
 }
 
