@@ -1,5 +1,5 @@
 import { Modal, ModalContent } from "@doska/ui-kit"
-import type { ReactNode } from "react"
+import { useRef, type ReactNode } from "react"
 
 interface IProps {
   isOpen: boolean
@@ -15,6 +15,8 @@ export function CardModalShell({
   onClosed,
   children,
 }: IProps) {
+  const popupRef = useRef<HTMLDivElement>(null)
+
   return (
     <Modal
       open={isOpen}
@@ -26,8 +28,10 @@ export function CardModalShell({
       }}
     >
       <ModalContent
+        ref={popupRef}
+        initialFocus={popupRef}
         aria-label="Card"
-        className="overflow-hidden md:h-[85svh] md:max-w-3xl"
+        className="overflow-hidden outline-none md:h-[85svh] md:max-w-3xl"
       >
         {children}
       </ModalContent>
