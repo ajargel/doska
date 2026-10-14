@@ -1,5 +1,10 @@
-import { EditorSelection, type StateCommand } from "@codemirror/state"
+import {
+  type ChangeSpec,
+  EditorSelection,
+  type StateCommand,
+} from "@codemirror/state"
 import { keymap } from "@codemirror/view"
+import { toggleTaskLine } from "@doska/markdown"
 
 /** Wraps each selection in `marker`, or unwraps it if already wrapped. */
 function toggleMark(marker: string): StateCommand {
@@ -48,11 +53,46 @@ function toggleMark(marker: string): StateCommand {
   }
 }
 
+/** Ticks or unticks each selected task line; turns other lines into tasks. */
+const toggleTask: StateCommand = ({ state, dispatch }) => {
+  const changes: ChangeSpec[] = []
+  const seen = new Set<number>()
+
+  for (const { from, to } of state.selection.ranges) {
+    const last = state.doc.lineAt(to).number
+    for (let n = state.doc.lineAt(from).number; n <= last; n++) {
+      if (seen.has(n)) continue
+      seen.add(n)
+
+      const line = state.doc.line(n)
+      const edit = toggleTaskLine(line.text)
+      changes.push({
+        from: line.from + edit.from,
+        to: line.from + edit.to,
+        insert: edit.insert,
+      })
+    }
+  }
+
+  const changeSet = state.changes(changes)
+
+  dispatch(
+    state.update({
+      changes: changeSet,
+      selection: state.selection.map(changeSet, 1),
+      scrollIntoView: true,
+      userEvent: "input",
+    })
+  )
+  return true
+}
+
 // stopPropagation: ⌘B also toggles the sidebar from a window listener.
 export const formatKeymap = keymap.of(
   [
     { key: "Mod-b", run: toggleMark("**") },
     { key: "Mod-i", run: toggleMark("*") },
     { key: "Mod-e", run: toggleMark("`") },
+    { key: "Mod-Enter", run: toggleTask },
   ].map((binding) => ({ ...binding, stopPropagation: true }))
 )
