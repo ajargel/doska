@@ -13,6 +13,7 @@ import { Check, Wrench } from "lucide-react"
 import { webKeyValue } from "@/lib/adapters/web-kv"
 import { ASKED_KEY } from "@/lib/persist"
 import { ONBOARDING_SEEN_KEY } from "../onboarding/use-should-onboard"
+import { OnboardingDeck } from "../onboarding/onboarding-deck"
 import {
   WHATS_NEW_SEEN_KEY,
   WHATS_NEW_VERSION,
@@ -36,6 +37,7 @@ export function DevMenu() {
   // Bumped to re-read localStorage after a toggle
   const [, setTick] = useState(0)
   const [crashed, setCrashed] = useState(false)
+  const [onboardingRun, setOnboardingRun] = useState(0)
 
   if (crashed) throw new Error("Thrown from the dev menu")
 
@@ -46,61 +48,67 @@ export function DevMenu() {
   }
 
   return (
-    <Menu>
-      <MenuTrigger
-        render={
-          <Button
-            size="icon"
-            variant="outline"
-            aria-label="Dev menu"
-            className="fixed right-6 bottom-16 z-50 opacity-50 hover:opacity-100"
-          />
-        }
-      >
-        <Wrench />
-      </MenuTrigger>
-      <MenuContent align="end" className="w-60">
-        {FLAGS.map((flag) => (
-          <MenuItem
-            key={flag.key}
-            closeOnClick={false}
-            onClick={() => toggle(flag.key, flag.value)}
-          >
-            <span className="truncate">{flag.label}</span>
-            {webKeyValue.get(flag.key) === flag.value && (
-              <Check className="ml-auto" />
-            )}
-          </MenuItem>
-        ))}
-        <MenuSeparator />
-        <MenuSub>
-          <MenuSubTrigger>Show toast</MenuSubTrigger>
-          <MenuContent align="start" sideOffset={2} className="w-52">
-            {DEV_TOASTS.map((item) => (
-              <MenuItem key={item.label} onClick={item.show}>
-                {item.label}
-              </MenuItem>
-            ))}
-          </MenuContent>
-        </MenuSub>
-        <MenuItem onClick={() => void seedDemoBoards()}>
-          Add demo boards
-        </MenuItem>
-        <MenuItem onClick={() => setCrashed(true)}>
-          Throw error (error screen)
-        </MenuItem>
-        <MenuSeparator />
-        <MenuItem onClick={() => window.location.reload()}>Reload</MenuItem>
-        <MenuItem
-          variant="destructive"
-          onClick={() => {
-            localStorage.clear()
-            window.location.reload()
-          }}
+    <>
+      <Menu>
+        <MenuTrigger
+          render={
+            <Button
+              size="icon"
+              variant="outline"
+              aria-label="Dev menu"
+              className="fixed right-6 bottom-16 z-50 opacity-50 hover:opacity-100"
+            />
+          }
         >
-          Clear localStorage and reload
-        </MenuItem>
-      </MenuContent>
-    </Menu>
+          <Wrench />
+        </MenuTrigger>
+        <MenuContent align="end" className="w-60">
+          {FLAGS.map((flag) => (
+            <MenuItem
+              key={flag.key}
+              closeOnClick={false}
+              onClick={() => toggle(flag.key, flag.value)}
+            >
+              <span className="truncate">{flag.label}</span>
+              {webKeyValue.get(flag.key) === flag.value && (
+                <Check className="ml-auto" />
+              )}
+            </MenuItem>
+          ))}
+          <MenuSeparator />
+          <MenuSub>
+            <MenuSubTrigger>Show toast</MenuSubTrigger>
+            <MenuContent align="start" sideOffset={2} className="w-52">
+              {DEV_TOASTS.map((item) => (
+                <MenuItem key={item.label} onClick={item.show}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </MenuContent>
+          </MenuSub>
+          <MenuItem onClick={() => setOnboardingRun((run) => run + 1)}>
+            Show onboarding
+          </MenuItem>
+          <MenuItem onClick={() => void seedDemoBoards()}>
+            Add demo boards
+          </MenuItem>
+          <MenuItem onClick={() => setCrashed(true)}>
+            Throw error (error screen)
+          </MenuItem>
+          <MenuSeparator />
+          <MenuItem onClick={() => window.location.reload()}>Reload</MenuItem>
+          <MenuItem
+            variant="destructive"
+            onClick={() => {
+              localStorage.clear()
+              window.location.reload()
+            }}
+          >
+            Clear localStorage and reload
+          </MenuItem>
+        </MenuContent>
+      </Menu>
+      {onboardingRun > 0 && <OnboardingDeck key={onboardingRun} shouldShow />}
+    </>
   )
 }

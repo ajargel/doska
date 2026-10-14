@@ -1,7 +1,9 @@
 import { useState } from "react"
-import { SlidesModal, type Slide } from "@doska/ui-kit"
+import { SlidesModal, useIsMobile, type Slide } from "@doska/ui-kit"
 import { SetupChoiceSlide, type Setup } from "./setup-choice-slide"
 import { SelfhostSlide } from "./selfhost-slide"
+import { CardViewSlide } from "./card-view-slide"
+import { QuickNoteSlide } from "./quick-note-slide"
 import { ONBOARDING_SEEN_KEY } from "./use-should-onboard"
 import {
   WHATS_NEW_SEEN_KEY,
@@ -26,6 +28,7 @@ export function OnboardingDeck({ shouldShow }: IProps) {
   const [open, setOpen] = useState(shouldShow)
   const [setup, setSetup] = useState<Setup | null>(null)
   const [isSignedIn, setIsSignedIn] = useState(false)
+  const isMobile = useIsMobile()
 
   function close() {
     webKeyValue.set(ONBOARDING_SEEN_KEY, "1")
@@ -42,7 +45,12 @@ export function OnboardingDeck({ shouldShow }: IProps) {
     />
   )
 
-  const slides: Slide[] = [intro, cards, organize, members]
+  const slides: Slide[] = [intro, cards]
+  // Card view is ignored on mobile
+  if (!isMobile) slides.push((next) => <CardViewSlide onDone={next} />)
+  slides.push(organize)
+  if (isDesktop()) slides.push(<QuickNoteSlide />)
+  slides.push(members)
   if (isDesktop()) {
     slides.push((next) => (
       <SetupChoiceSlide
