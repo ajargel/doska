@@ -1,6 +1,9 @@
 import { SlidesModal } from "@doska/ui-kit"
+import history from "./slides/history.md?raw"
+import cardModal from "./slides/card-modal.md?raw"
+import formatting from "./slides/formatting.md?raw"
 
-const SLIDES = [""]
+const SLIDES = [history, cardModal, formatting]
 
 interface IProps {
   open: boolean
