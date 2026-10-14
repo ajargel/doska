@@ -7,7 +7,7 @@ import {
   Paperclip,
   Pencil,
 } from "lucide-react"
-import { Fragment } from "react"
+import { Fragment, type ReactNode } from "react"
 import { isDesktop } from "@/lib/platform"
 import { Kbd } from "./kbd"
 
@@ -26,7 +26,7 @@ interface ShortcutSection {
 interface Tip {
   icon: LucideIcon
   title: string
-  text: string
+  text: ReactNode
   desktopOnly?: boolean
 }
 
@@ -69,7 +69,21 @@ const TIPS: Tip[] = [
   {
     icon: Paperclip,
     title: "Files",
-    text: "Drop them on the card, paste them, or use the paperclip up top.",
+    text: (
+      <>
+        Drop them on the card, paste them, or use the paperclip up top. Not
+        working?{" "}
+        <a
+          href="https://doska.sh/docs/user-guides/attachments"
+          target="_blank"
+          rel="noreferrer"
+          className="text-foreground underline underline-offset-2"
+        >
+          Check the documentation
+        </a>
+        , you may need to set this up.
+      </>
+    ),
   },
   {
     icon: Pencil,
@@ -135,12 +149,9 @@ export function CardHelpModal({ open, onOpenChange }: IProps) {
           ))}
           <section className="flex flex-col gap-3 p-4">
             <h3 className="text-base font-medium">Tips</h3>
-            <ul className="flex flex-col gap-2">
+            <ul className="flex flex-col gap-4">
               {TIPS.filter((tip) => desktop || !tip.desktopOnly).map((tip) => (
-                <li
-                  key={tip.title}
-                  className="flex gap-3 rounded-lg bg-muted/50 p-3"
-                >
+                <li key={tip.title} className="flex gap-3">
                   <span className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background">
                     <tip.icon className="size-4 text-muted-foreground" />
                   </span>
