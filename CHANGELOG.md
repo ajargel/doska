@@ -7,10 +7,15 @@
 - History for cards and boards: shows users' activity, and changes for past 14 days.
 - Setting to open cards in a centered modal instead of the side panel.
   modal, the card closes first.
+- Formatting shortcuts in the editor: Cmd/Ctrl+B bold, Cmd/Ctrl+I italic,
+  Cmd/Ctrl+E inline code, Cmd/Ctrl+Enter ticks a task or turns the line into one,
+  Tab / Shift+Tab indent.
+- Shortcuts modal on the card: editor shortcuts and tips.
 
 ### Fixed
 
 - Retry on the offline toast crashed instead of syncing.
+- Enter in a list no longer leaves a blank line between items.
 
 ### Changed
 
