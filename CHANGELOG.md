@@ -6,6 +6,10 @@
 
 - History for cards and boards: shows users' activity, and changes for past 14 days.
 
+### Changed
+
+- A board can have several done columns. Ticking a card in the list view, moves it to the leftmost one.
+
 ## [0.26.0] - 2026-10-08
 
 ### Added
