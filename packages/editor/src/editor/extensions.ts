@@ -16,6 +16,7 @@ import {
   wikilinkCompletion,
 } from "./completions"
 import { decorations, wikilinkTargets } from "./decorations"
+import { formatKeymap } from "./format-keymap"
 import { markdownSyntax } from "./language"
 import { pasteFiles } from "./paste-files"
 import { theme } from "./theme"
@@ -69,6 +70,7 @@ export function editorExtensions(
         targets.of(wikilinkTargets.of(new Set())),
         closeBrackets(),
         keymap.of(closeBracketsKeymap),
+        formatKeymap,
         EditorState.languageData.of(() => [
           { closeBrackets: { brackets: BRACKETS } },
         ]),
