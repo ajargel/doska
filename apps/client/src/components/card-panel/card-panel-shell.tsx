@@ -42,7 +42,12 @@ export function CardPanelShell({
 
   if (isModal) {
     return (
-      <CardModalShell isOpen={isOpen} onClose={onClose} onClosed={onClosed}>
+      <CardModalShell
+        isOpen={isOpen}
+        onClose={onClose}
+        onClosed={onClosed}
+        onTearOff={onTearOff}
+      >
         {children}
       </CardModalShell>
     )
