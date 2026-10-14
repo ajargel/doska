@@ -8,8 +8,13 @@ interface IProps {
   children: ReactNode
 }
 
-/** The card as a centered modal, for those who'd rather not have the panel. */
-export function CardModalShell({ isOpen, onClose, onClosed, children }: IProps) {
+/** The card as a centered modal vs panel. */
+export function CardModalShell({
+  isOpen,
+  onClose,
+  onClosed,
+  children,
+}: IProps) {
   return (
     <Modal
       open={isOpen}
