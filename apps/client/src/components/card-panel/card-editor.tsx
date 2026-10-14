@@ -1,4 +1,4 @@
-import { TitleEditor } from "@doska/ui-kit"
+import { TitleEditor, cn } from "@doska/ui-kit"
 import { useState, type ReactNode } from "react"
 import { CardPaneLayout } from "./card-pane-layout"
 import { CardPanelHeader } from "./card-panel-header"
@@ -113,13 +113,6 @@ export function CardEditor({
               }
               notice={notice}
               tags={tags}
-              footer={
-                withHeader && (
-                  <div className="flex justify-end px-4">
-                    <CardHelpButton />
-                  </div>
-                )
-              }
               onClickBody={
                 isPreview
                   ? (e) => {
@@ -147,6 +140,16 @@ export function CardEditor({
                 />
               }
             />
+            {withHeader && (
+              <div
+                className={cn(
+                  "absolute right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-10 rounded-md bg-card/80 backdrop-blur-xs",
+                  inWindow && "fixed"
+                )}
+              >
+                <CardHelpButton />
+              </div>
+            )}
           </div>
         </AttachmentDropZone>
       </AttachmentUploadProvider>
