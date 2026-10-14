@@ -1,4 +1,4 @@
-import { TitleEditor, cn } from "@doska/ui-kit"
+import { TitleEditor, cn, useIsMobile } from "@doska/ui-kit"
 import { useState, type ReactNode } from "react"
 import { CardPaneLayout } from "./card-pane-layout"
 import { CardPanelHeader } from "./card-panel-header"
@@ -62,6 +62,7 @@ export function CardEditor({
   inWindow,
 }: IProps) {
   const [overlay, setOverlay] = useState<HTMLDivElement | null>(null)
+  const isMobile = useIsMobile()
 
   const [focus] = useState(() => {
     if (!title.trim() && !body.trim()) return "title"
@@ -140,7 +141,7 @@ export function CardEditor({
                 />
               }
             />
-            {withHeader && (
+            {withHeader && !isMobile && (
               <div
                 className={cn(
                   "absolute right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-10 rounded-md bg-card/80 backdrop-blur-xs",
