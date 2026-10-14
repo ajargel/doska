@@ -4,6 +4,7 @@ import { CardPaneLayout } from "./card-pane-layout"
 import { CardPanelHeader } from "./card-panel-header"
 import { CardPanelMenu } from "./card-panel-menu"
 import { CardBodyEditor } from "./card-body-editor"
+import { CardHelpButton } from "./card-help-button"
 import { CardMetaLive } from "../card/card-meta-live"
 import { CardAttachments } from "../card/attachments/card-attachments"
 import { AddAttachmentButton } from "../card/attachments/add-attachment-button"
@@ -112,6 +113,13 @@ export function CardEditor({
               }
               notice={notice}
               tags={tags}
+              footer={
+                withHeader && (
+                  <div className="flex justify-end px-4">
+                    <CardHelpButton />
+                  </div>
+                )
+              }
               onClickBody={
                 isPreview
                   ? (e) => {

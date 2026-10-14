@@ -9,6 +9,7 @@ interface IProps {
   title: ReactNode
   body: ReactNode
   tags?: ReactNode
+  footer?: ReactNode
   /** Fired by clicking the body, where clicking it starts an edit. */
   onClickBody?: (e: React.MouseEvent) => void
   /** The window itself scrolls, so the content must not. */
@@ -23,6 +24,7 @@ export function CardPaneLayout({
   title,
   body,
   tags,
+  footer,
   onClickBody,
   inWindow,
 }: IProps) {
@@ -43,6 +45,7 @@ export function CardPaneLayout({
           {title}
           {body}
         </CardContent>
+        {footer}
       </CardContentLayout>
     </>
   )
