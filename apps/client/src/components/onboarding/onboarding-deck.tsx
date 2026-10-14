@@ -2,6 +2,11 @@ import { useState } from "react"
 import { SlidesModal, type Slide } from "@doska/ui-kit"
 import { SetupChoiceSlide, type Setup } from "./setup-choice-slide"
 import { SelfhostSlide } from "./selfhost-slide"
+import { ONBOARDING_SEEN_KEY } from "./use-should-onboard"
+import {
+  WHATS_NEW_SEEN_KEY,
+  WHATS_NEW_VERSION,
+} from "../whats-new/whats-new-modal"
 import { isDesktop } from "@/lib/platform"
 import { webKeyValue } from "@/lib/adapters/web-kv"
 import intro from "./slides/intro.md?raw"
@@ -11,8 +16,6 @@ import signedIn from "./slides/signed-in.md?raw"
 import members from "./slides/members.md?raw"
 import cards from "./slides/cards.md?raw"
 import organize from "./slides/organize.md?raw"
-
-export const SEEN_KEY = "onboarding-seen"
 
 interface IProps {
   shouldShow: boolean
@@ -25,7 +28,8 @@ export function OnboardingDeck({ shouldShow }: IProps) {
   const [isSignedIn, setIsSignedIn] = useState(false)
 
   function close() {
-    webKeyValue.set(SEEN_KEY, "1")
+    webKeyValue.set(ONBOARDING_SEEN_KEY, "1")
+    webKeyValue.set(WHATS_NEW_SEEN_KEY, WHATS_NEW_VERSION)
     setOpen(false)
   }
 

@@ -1,7 +1,13 @@
 import { toast } from "react-hot-toast"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useIsMainWindow } from "@/lib/hooks"
-import { WhatsNewModal } from "../../whats-new/whats-new-modal"
+import { webKeyValue } from "@/lib/adapters/web-kv"
+import { useShouldOnboard } from "../../onboarding/use-should-onboard"
+import {
+  WHATS_NEW_SEEN_KEY,
+  WHATS_NEW_VERSION,
+  WhatsNewModal,
+} from "../../whats-new/whats-new-modal"
 import { WhatsNewToastContent } from "./whats-new-toast-content"
 
 const TOAST_ID = "whats-new"
@@ -9,12 +15,23 @@ const TOAST_ID = "whats-new"
 export function WhatsNewToast() {
   const [open, setOpen] = useState(false)
   const isMainWindow = useIsMainWindow()
+  const shouldOnboard = useShouldOnboard()
+  // Signing in during onboarding doesn't pop the toast
+  const decided = useRef(false)
 
-  // TODO: show only when the version went up since the last launch
   useEffect(() => {
     if (!isMainWindow) {
       toast.dismiss(TOAST_ID)
       return
+    }
+    if (shouldOnboard === null || decided.current) return
+    decided.current = true
+    if (shouldOnboard) return
+    if (webKeyValue.get(WHATS_NEW_SEEN_KEY) === WHATS_NEW_VERSION) return
+
+    function markSeen() {
+      webKeyValue.set(WHATS_NEW_SEEN_KEY, WHATS_NEW_VERSION)
+      toast.dismiss(TOAST_ID)
     }
 
     toast.custom(
@@ -22,15 +39,15 @@ export function WhatsNewToast() {
         <WhatsNewToastContent
           visible={toastInstance.visible}
           onOpen={() => {
-            toast.dismiss(TOAST_ID)
+            markSeen()
             setOpen(true)
           }}
-          onDismiss={() => toast.dismiss(TOAST_ID)}
+          onDismiss={markSeen}
         />
       ),
       { duration: Infinity, id: TOAST_ID }
     )
-  }, [isMainWindow])
+  }, [isMainWindow, shouldOnboard])
 
   return <WhatsNewModal open={open} onOpenChange={setOpen} />
 }
