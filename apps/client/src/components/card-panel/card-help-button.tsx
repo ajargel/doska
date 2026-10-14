@@ -3,19 +3,42 @@ import { CircleHelp } from "lucide-react"
 import { useState } from "react"
 import { CardHelpModal } from "./card-help-modal"
 
+const SEEN_KEY = "doska:card-shortcuts-seen"
+
+function readSeen(): boolean {
+  try {
+    return localStorage.getItem(SEEN_KEY) === "true"
+  } catch {
+    return false
+  }
+}
+
 export function CardHelpButton() {
   const [open, setOpen] = useState(false)
+  const [seen, setSeen] = useState(readSeen)
+
+  function openHelp() {
+    setOpen(true)
+    if (seen) return
+    try {
+      localStorage.setItem(SEEN_KEY, "true")
+    } catch {
+      // LS is not available, just show the label
+    }
+    setSeen(true)
+  }
 
   return (
     <>
       <Button
         variant="ghost"
-        size="sm"
+        size={seen ? "icon-sm" : "sm"}
+        aria-label="Shortcuts"
         className="text-muted-foreground"
-        onClick={() => setOpen(true)}
+        onClick={openHelp}
       >
         <CircleHelp />
-        Shortcuts
+        {!seen && "Shortcuts"}
       </Button>
       <CardHelpModal open={open} onOpenChange={setOpen} />
     </>
