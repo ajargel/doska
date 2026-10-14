@@ -26,6 +26,7 @@ import { UndoToaster } from "@/components/toasts/card-delete/undo-toaster"
 import { WindowDragRegion } from "@/components/window-drag-region"
 import { WindowControlsFlag } from "@/components/window-controls-flag"
 import { WindowSyncListener } from "@/components/card-window/window-sync-listener"
+import { DevMenu } from "@/components/dev-menu/dev-menu"
 import "./index.css"
 
 const root = createRoot(document.getElementById("root")!)
@@ -95,6 +96,7 @@ if (isPublicLink) {
               <WindowDragRegion />
               <WindowControlsFlag />
               <WindowSyncListener />
+              {import.meta.env.DEV && <DevMenu />}
             </LoginPromptProvider>
           </ThemeProvider>
         </QueryClientProvider>
