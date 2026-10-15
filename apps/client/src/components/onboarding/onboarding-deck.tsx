@@ -8,7 +8,7 @@ import { ONBOARDING_SEEN_KEY } from "./use-should-onboard"
 import {
   WHATS_NEW_SEEN_KEY,
   WHATS_NEW_VERSION,
-} from "../whats-new/whats-new-modal"
+} from "../whats-new/whats-new-seen"
 import { isDesktop } from "@/lib/platform"
 import { webKeyValue } from "@/lib/adapters/web-kv"
 import intro from "./slides/intro.md?raw"

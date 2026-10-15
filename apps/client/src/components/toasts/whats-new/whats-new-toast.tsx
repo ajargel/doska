@@ -3,11 +3,11 @@ import { useEffect, useRef, useState } from "react"
 import { useIsMainWindow } from "@/lib/hooks"
 import { webKeyValue } from "@/lib/adapters/web-kv"
 import { useShouldOnboard } from "../../onboarding/use-should-onboard"
+import { WhatsNewModal } from "../../whats-new/whats-new-modal"
 import {
   WHATS_NEW_SEEN_KEY,
   WHATS_NEW_VERSION,
-  WhatsNewModal,
-} from "../../whats-new/whats-new-modal"
+} from "../../whats-new/whats-new-seen"
 import { WhatsNewToastContent } from "./whats-new-toast-content"
 
 const TOAST_ID = "whats-new"

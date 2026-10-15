@@ -17,7 +17,7 @@ import { OnboardingDeck } from "../onboarding/onboarding-deck"
 import {
   WHATS_NEW_SEEN_KEY,
   WHATS_NEW_VERSION,
-} from "../whats-new/whats-new-modal"
+} from "../whats-new/whats-new-seen"
 import { CARD_SHORTCUTS_SEEN_KEY } from "../card-panel/card-help-button"
 import { DEV_TOASTS } from "./dev-toasts"
 import { seedDemoBoards } from "./demo-boards"
