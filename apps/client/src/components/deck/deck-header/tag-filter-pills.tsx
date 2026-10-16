@@ -1,4 +1,4 @@
-import { useDirectory } from "@doska/core"
+import { useActiveUsers } from "@doska/core"
 import { useDeck } from "@/providers/deck/deck-context"
 import { useAuth } from "@/lib/hooks"
 import { FilterPill } from "./filter-pill"
@@ -12,9 +12,9 @@ export function TagFilterPills() {
     toggleUserFilter,
   } = useDeck()
   const { authed } = useAuth()
-  const { data: directory = [] } = useDirectory(!!authed)
+  const { data: activeUsers = [] } = useActiveUsers(!!authed)
 
-  const users = directory.filter((user) => userFilters.includes(user.id))
+  const users = activeUsers.filter((user) => userFilters.includes(user.id))
   if (tagFilters.length === 0 && users.length === 0) return null
 
   return (
