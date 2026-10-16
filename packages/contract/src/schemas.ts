@@ -203,8 +203,8 @@ export const MemberSchema = z.object({
   role: MemberRoleSchema,
 })
 
-/** An account in the server's directory — everything the member picker gets. */
-export const DirectoryUserSchema = z.object({
+/** A not-banned account: everything the member picker gets. */
+export const ActiveUserSchema = z.object({
   id: z.string(),
   username: z.string(),
   image: z.string().nullable(),
