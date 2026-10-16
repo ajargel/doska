@@ -1,5 +1,5 @@
-# Cards open in a modal
+# Cards can open in a modal
 
-Cards now open in the middle of the screen by default. 
+Cards still open in the side panel by default.
 
-Prefer the old side panel? Switch back in **Settings → Cards**.
+Want them in the middle of the screen? Switch to **Modal** in **Settings → Cards**.
