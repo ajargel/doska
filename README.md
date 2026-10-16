@@ -59,7 +59,7 @@ Doska never makes you wait on the server, doesn't keep features behind a paywall
 - [x] **Quick note window**: always on top, opened with a keyboard shortcut
 - [x] **Tags**
 - [x] **Assign users** to cards
-- [ ] Activity/history view
+- [x] Activity/history view
 
 ## Apps
 
