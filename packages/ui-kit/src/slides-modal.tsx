@@ -41,7 +41,7 @@ export function SlidesModal({ slides, open, onOpenChange }: IProps) {
             slide
           )}
         </div>
-        <div className="flex items-center justify-between gap-2 px-3 py-3">
+        <div className="flex items-center justify-between gap-2 px-3 py-3 max-md:pb-10">
           <div className="flex items-center gap-1.5 pl-3">
             {slides.map((_, dot) => (
               <button
