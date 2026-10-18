@@ -28,7 +28,7 @@ test.describe("digest", () => {
     await page.goto("/digest")
 
     await expect(page.getByRole("heading", { name: "Overdue" })).toBeVisible()
-    await expect(digestRow(page, "Deadlines")).toBeVisible()
+    await expect(digestRow(page, "Connect MCP")).toBeVisible()
   })
 
   test("a card with no deadline is not shown", async ({ page }) => {

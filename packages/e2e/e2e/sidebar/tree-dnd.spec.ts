@@ -30,17 +30,17 @@ test.describe("sidebar drag and drop", () => {
     await newBoard(page, "Beta")
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Beta", "Alpha", "Welcome"])
+      .toEqual(["Beta", "Alpha", "Demo board"])
 
     await dragSidebarRow(page, "Beta", ["ArrowDown"])
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Alpha", "Beta", "Welcome"])
+      .toEqual(["Alpha", "Beta", "Demo board"])
 
     await page.reload()
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Alpha", "Beta", "Welcome"])
+      .toEqual(["Alpha", "Beta", "Demo board"])
   })
 
   test("a board dropped under a folder's header goes into it", async ({
@@ -51,22 +51,22 @@ test.describe("sidebar drag and drop", () => {
     await newBoard(page, "Alpha")
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Alpha", "Work", "Welcome"])
+      .toEqual(["Alpha", "Work", "Demo board"])
 
     await dragSidebarRow(page, "Alpha", ["ArrowDown"])
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "  Alpha", "Welcome"])
+      .toEqual(["Work", "  Alpha", "Demo board"])
 
     // Really inside: collapsing the folder takes the board with it.
     await folder(page, "Work").click()
-    await expect.poll(() => sidebarTree(page)).toEqual(["Work", "Welcome"])
+    await expect.poll(() => sidebarTree(page)).toEqual(["Work", "Demo board"])
     await folder(page, "Work").click()
 
     await page.reload()
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "  Alpha", "Welcome"])
+      .toEqual(["Work", "  Alpha", "Demo board"])
   })
 
   test("a board dropped past the next root board leaves its folder", async ({
@@ -78,18 +78,18 @@ test.describe("sidebar drag and drop", () => {
     await dragSidebarRow(page, "Alpha", ["ArrowDown"])
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "  Alpha", "Welcome"])
+      .toEqual(["Work", "  Alpha", "Demo board"])
 
-    // One step down is still the folder's last slot; two is under Welcome.
+    // One step down is still the folder's last slot; two is under Demo board.
     await dragSidebarRow(page, "Alpha", ["ArrowDown", "ArrowDown"])
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "Welcome", "Alpha"])
+      .toEqual(["Work", "Demo board", "Alpha"])
 
     await page.reload()
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "Welcome", "Alpha"])
+      .toEqual(["Work", "Demo board", "Alpha"])
   })
 
   test("a root board dropped right after a folder's last board stays at the root", async ({
@@ -102,19 +102,19 @@ test.describe("sidebar drag and drop", () => {
     await newBoard(page, "Beta")
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Beta", "Work", "  Alpha", "Welcome"])
+      .toEqual(["Beta", "Work", "  Alpha", "Demo board"])
 
     // Nesting at the end of a folder is the pull-right gesture, which a
     // keyboard drag never makes: the slot after Alpha is a root slot.
     await dragSidebarRow(page, "Beta", ["ArrowDown", "ArrowDown"])
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "  Alpha", "Beta", "Welcome"])
+      .toEqual(["Work", "  Alpha", "Beta", "Demo board"])
 
     await folder(page, "Work").click()
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "Beta", "Welcome"])
+      .toEqual(["Work", "Beta", "Demo board"])
   })
 
   test("a board moved between two folders changes folder", async ({ page }) => {
@@ -125,13 +125,13 @@ test.describe("sidebar drag and drop", () => {
     await createFolder(page, "Work")
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "Home", "  Alpha", "Welcome"])
+      .toEqual(["Work", "Home", "  Alpha", "Demo board"])
 
     // Up past Home's header and Work's empty slot: under Work's header.
     await dragSidebarRow(page, "Alpha", ["ArrowUp", "ArrowUp"])
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "  Alpha", "Home", "Welcome"])
+      .toEqual(["Work", "  Alpha", "Home", "Demo board"])
   })
 
   test("a folder takes its boards along when moved", async ({ page }) => {
@@ -141,19 +141,19 @@ test.describe("sidebar drag and drop", () => {
     await dragSidebarRow(page, "Alpha", ["ArrowDown"])
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "  Alpha", "Welcome"])
+      .toEqual(["Work", "  Alpha", "Demo board"])
 
     // Its boards fold into the lifted folder, so the only slot below is
-    // after Welcome — the lift still counts the folded rows as steps.
+    // after Demo board — the lift still counts the folded rows as steps.
     await dragSidebarRow(page, "Work", ["ArrowDown", "ArrowDown", "ArrowDown"])
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Welcome", "Work", "  Alpha"])
+      .toEqual(["Demo board", "Work", "  Alpha"])
 
     await page.reload()
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Welcome", "Work", "  Alpha"])
+      .toEqual(["Demo board", "Work", "  Alpha"])
   })
 
   test("a folder dropped among another folder's boards lands after it at the root", async ({
@@ -166,20 +166,20 @@ test.describe("sidebar drag and drop", () => {
     await createFolder(page, "Work")
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "Home", "  Alpha", "Welcome"])
+      .toEqual(["Work", "Home", "  Alpha", "Demo board"])
 
     // Three steps: over Work's own (folded) empty slot, Home's header, Alpha.
     await dragSidebarRow(page, "Work", ["ArrowDown", "ArrowDown", "ArrowDown"])
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Home", "  Alpha", "Work", "Welcome"])
+      .toEqual(["Home", "  Alpha", "Work", "Demo board"])
   })
 
   test("dropping where it was lifted changes nothing", async ({ page }) => {
     await newBoard(page, "Alpha")
-    await expect.poll(() => sidebarTree(page)).toEqual(["Alpha", "Welcome"])
+    await expect.poll(() => sidebarTree(page)).toEqual(["Alpha", "Demo board"])
 
     await dragSidebarRow(page, "Alpha", ["ArrowDown", "ArrowUp"])
-    await expect.poll(() => sidebarTree(page)).toEqual(["Alpha", "Welcome"])
+    await expect.poll(() => sidebarTree(page)).toEqual(["Alpha", "Demo board"])
   })
 })

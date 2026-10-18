@@ -19,7 +19,7 @@ async function expectAppSettled(page: Page) {
   ).toBeVisible()
 }
 
-/** A fresh browser context is a first visit: signed out, only the Welcome board. */
+/** A fresh browser context is a first visit: signed out, only the demo board. */
 test.describe("onboarding", () => {
   test.use({ storageState: { cookies: [], origins: [] } })
 

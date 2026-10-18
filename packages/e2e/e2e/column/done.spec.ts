@@ -76,7 +76,7 @@ test.describe("marking a column done", () => {
     await setDeadline(page, "Needs a done column", "Today")
 
     // No done column yet, so the row's tick box explains itself instead. The
-    // seeded Welcome board has none either, hence the scoping to this row.
+    // seeded demo board has one, hence the scoping to this row.
     await page.goto("/digest")
     const row = digestRow(page, "Needs a done column")
     const help = row.getByRole("checkbox", {
