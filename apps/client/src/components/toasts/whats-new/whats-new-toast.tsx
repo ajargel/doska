@@ -2,7 +2,10 @@ import { toast } from "react-hot-toast"
 import { useEffect, useRef, useState } from "react"
 import { useIsMainWindow } from "@/lib/hooks"
 import { webKeyValue } from "@/lib/adapters/web-kv"
-import { useShouldOnboard } from "../../onboarding/use-should-onboard"
+import {
+  isOnboardingSkipped,
+  useShouldOnboard,
+} from "../../onboarding/use-should-onboard"
 import { WhatsNewModal } from "../../whats-new/whats-new-modal"
 import {
   WHATS_NEW_SEEN_KEY,
@@ -26,7 +29,7 @@ export function WhatsNewToast() {
     }
     if (shouldOnboard === null || decided.current) return
     decided.current = true
-    if (shouldOnboard) return
+    if (shouldOnboard || isOnboardingSkipped()) return
     if (webKeyValue.get(WHATS_NEW_SEEN_KEY) === WHATS_NEW_VERSION) return
 
     function markSeen() {
