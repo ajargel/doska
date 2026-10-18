@@ -22,6 +22,7 @@ import { UpdateToast } from "@/components/toasts/update/update-toast"
 import { OfflineToast } from "@/components/toasts/offline/offline-toast"
 import { WhatsNewToast } from "@/components/toasts/whats-new/whats-new-toast"
 import { OnboardingModal } from "@/components/onboarding/onboarding-modal"
+import { persistOnboardingSkip } from "@/components/onboarding/use-should-onboard"
 import { UndoToaster } from "@/components/toasts/card-delete/undo-toaster"
 import { WindowDragRegion } from "@/components/window-drag-region"
 import { WindowControlsFlag } from "@/components/window-controls-flag"
@@ -36,6 +37,8 @@ const isPublicLink = routes.public.matches(window.location.pathname)
 trackAppHeight()
 
 initErrorReporting()
+
+persistOnboardingSkip()
 
 if (isPublicLink) {
   root.render(
