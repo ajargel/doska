@@ -20,10 +20,10 @@ import {
  * Folders group boards in the sidebar. They live only in the sidebar layout:
  * nothing about a board changes when it goes into one, and a deleted folder
  * hands its boards back to the root. A fresh device starts with the seeded
- * "Welcome" board at the root, which is why it shows up in every tree.
+ * demo board at the root, which is why it shows up in every tree.
  */
 
-/** A "Work" folder holding "Alpha", above the seeded Welcome board. */
+/** A "Work" folder holding "Alpha", above the seeded demo board. */
 async function folderWithBoard(page: Page): Promise<void> {
   await page.goto("/")
   await createFolder(page, "Work")
@@ -34,7 +34,7 @@ async function folderWithBoard(page: Page): Promise<void> {
   await dragSidebarRow(page, "Alpha", ["ArrowDown"])
   await expect
     .poll(() => sidebarTree(page))
-    .toEqual(["Work", "  Alpha", "Welcome"])
+    .toEqual(["Work", "  Alpha", "Demo board"])
 }
 
 test.describe("sidebar folders", () => {
@@ -50,7 +50,7 @@ test.describe("sidebar folders", () => {
     await input.fill("Work")
     await input.press("Enter")
 
-    await expect.poll(() => sidebarTree(page)).toEqual(["Work", "Welcome"])
+    await expect.poll(() => sidebarTree(page)).toEqual(["Work", "Demo board"])
     await expect(folder(page, "Work")).toHaveAttribute("aria-expanded", "true")
     await expect(emptyFolderNotes(page)).toHaveCount(1)
   })
@@ -105,12 +105,12 @@ test.describe("sidebar folders", () => {
     await renameFolder(page, "Work", "Play")
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Play", "  Alpha", "Welcome"])
+      .toEqual(["Play", "  Alpha", "Demo board"])
 
     await page.reload()
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Play", "  Alpha", "Welcome"])
+      .toEqual(["Play", "  Alpha", "Demo board"])
   })
 
   test("collapsing hides the folder's boards, and sticks", async ({ page }) => {
@@ -118,7 +118,7 @@ test.describe("sidebar folders", () => {
 
     await folder(page, "Work").click()
     await expect(folder(page, "Work")).toHaveAttribute("aria-expanded", "false")
-    await expect.poll(() => sidebarTree(page)).toEqual(["Work", "Welcome"])
+    await expect.poll(() => sidebarTree(page)).toEqual(["Work", "Demo board"])
     // Only hidden, not moved: the board is still open behind the sidebar.
     await expect(page.getByRole("textbox", { name: "Board name" })).toHaveCount(
       0
@@ -126,12 +126,12 @@ test.describe("sidebar folders", () => {
 
     await page.reload()
     await expect(folder(page, "Work")).toHaveAttribute("aria-expanded", "false")
-    await expect.poll(() => sidebarTree(page)).toEqual(["Work", "Welcome"])
+    await expect.poll(() => sidebarTree(page)).toEqual(["Work", "Demo board"])
 
     await folder(page, "Work").click()
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "  Alpha", "Welcome"])
+      .toEqual(["Work", "  Alpha", "Demo board"])
   })
 
   test("a new board goes to the top of the root, not into the top folder", async ({
@@ -145,7 +145,7 @@ test.describe("sidebar folders", () => {
 
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Beta", "Work", "Welcome"])
+      .toEqual(["Beta", "Work", "Demo board"])
     await expect(emptyFolderNotes(page)).toHaveCount(1)
   })
 
@@ -156,12 +156,12 @@ test.describe("sidebar folders", () => {
 
     await deleteFolder(page, "Work")
 
-    await expect.poll(() => sidebarTree(page)).toEqual(["Alpha", "Welcome"])
+    await expect.poll(() => sidebarTree(page)).toEqual(["Alpha", "Demo board"])
     // The board itself is untouched.
     await openBoardInSidebar(page, "Alpha")
 
     await page.reload()
-    await expect.poll(() => sidebarTree(page)).toEqual(["Alpha", "Welcome"])
+    await expect.poll(() => sidebarTree(page)).toEqual(["Alpha", "Demo board"])
   })
 
   test("deleting an empty folder leaves the boards as they were", async ({
@@ -172,7 +172,7 @@ test.describe("sidebar folders", () => {
 
     await deleteFolder(page, "Work")
 
-    await expect.poll(() => sidebarTree(page)).toEqual(["Welcome"])
+    await expect.poll(() => sidebarTree(page)).toEqual(["Demo board"])
     await expect(emptyFolderNotes(page)).toHaveCount(0)
   })
 
@@ -183,7 +183,7 @@ test.describe("sidebar folders", () => {
 
     await openBoardInSidebar(page, "Alpha")
     await deleteBoard(page)
-    await expect.poll(() => sidebarTree(page)).toEqual(["Work", "Welcome"])
+    await expect.poll(() => sidebarTree(page)).toEqual(["Work", "Demo board"])
     await expect(emptyFolderNotes(page)).toHaveCount(1)
 
     await openTrash(page)
@@ -191,7 +191,7 @@ test.describe("sidebar folders", () => {
 
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "  Alpha", "Welcome"])
+      .toEqual(["Work", "  Alpha", "Demo board"])
   })
 
   test("the empty note only shows for an expanded folder with nothing in it", async ({

@@ -88,7 +88,7 @@ test.describe("move a card to another board", () => {
     await dragSidebarRow(page, "Alpha", ["ArrowDown"])
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "  Alpha", "Welcome"])
+      .toEqual(["Work", "  Alpha", "Demo board"])
     await folder(page, "Work").click()
     await expect(folder(page, "Work")).toHaveAttribute("aria-expanded", "false")
 

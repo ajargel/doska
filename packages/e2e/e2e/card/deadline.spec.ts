@@ -37,14 +37,14 @@ test.describe("card deadline", () => {
     await page.goto("/d/welcome")
 
     // The colour class sits on the chip wrapper, one level above the label.
-    const overdueChip = cardTitled(page, "Deadlines")
+    const overdueChip = cardTitled(page, "Connect MCP")
       .getByText(/days ago/)
       .locator("..")
     await expect(overdueChip).toBeVisible()
     await expect(overdueChip).toHaveClass(/text-destructive/)
 
-    await setDeadline(page, "Deadlines", "In a week")
-    const upcomingChip = cardTitled(page, "Deadlines")
+    await setDeadline(page, "Connect MCP", "In a week")
+    const upcomingChip = cardTitled(page, "Connect MCP")
       .getByText(UPCOMING)
       .locator("..")
     await expect(upcomingChip).not.toHaveClass(/text-destructive/)

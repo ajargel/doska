@@ -1,6 +1,6 @@
 import { useBoard, searchCards, type SearchHit } from "@doska/core"
-import { Modal, ModalContent, ModalTitle } from "@doska/ui-kit"
-import { Search } from "lucide-react"
+import { Button, Modal, ModalContent, ModalTitle } from "@doska/ui-kit"
+import { Search, X } from "lucide-react"
 import { useMemo, useState } from "react"
 import { useLocation } from "wouter"
 import { useRevealCard } from "@/providers/card-reveal/card-reveal-context"
@@ -102,6 +102,16 @@ export function SearchModal({ open, onOpenChange, boardId }: IProps) {
               {hits.length === 1 ? "1 result" : `${hits.length} results`}
             </span>
           )}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Close search"
+            onClick={() => onOpenChange(false)}
+            className="md:hidden"
+          >
+            <X />
+          </Button>
         </div>
         <div
           id={LIST_ID}

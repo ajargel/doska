@@ -8,7 +8,7 @@ import {
 } from "../helpers"
 
 /**
- * The landing screen with no board open. A first run is seeded with the Welcome
+ * The landing screen with no board open. A first run is seeded with the Demo board
  * board, so the "no boards yet" copy is only reachable once every board is
  * deleted — both states are covered here.
  */
@@ -48,8 +48,8 @@ test.describe("home", () => {
     page,
   }) => {
     await page.goto("/")
-    // The seeded Welcome board is the only one, so deleting it empties the app.
-    await openBoardInSidebar(page, "Welcome")
+    // The seeded demo board is the only one, so deleting it empties the app.
+    await openBoardInSidebar(page, "Demo board")
     await deleteBoard(page)
 
     await expect(

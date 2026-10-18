@@ -51,11 +51,11 @@ test.describe("sidebar layout sync", () => {
     await remoteSetSidebarLayout(request, [remoteFolder("Remote folder", [id])])
 
     await expect(folder(page, "Remote folder")).toBeVisible()
-    // Welcome was claimed by this account but isn't in the pushed layout, so
+    // Demo board was claimed by this account but isn't in the pushed layout, so
     // it trails the tree at the root.
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Remote folder", "  Remote board", "Welcome"])
+      .toEqual(["Remote folder", "  Remote board", "Demo board"])
   })
 
   test("a stale layout from another device loses to the one here", async ({
@@ -94,14 +94,14 @@ test.describe("sidebar layout sync", () => {
     await signIn(page, account)
     await authenticate(request, account)
     await createFolder(page, "Work")
-    await expect.poll(() => sidebarTree(page)).toEqual(["Work", "Welcome"])
+    await expect.poll(() => sidebarTree(page)).toEqual(["Work", "Demo board"])
 
     await remoteCreateDashboard(request, "Remote board")
 
     // Not in the (expanded, empty) folder on top, and not above the others.
     await expect
       .poll(() => sidebarTree(page))
-      .toEqual(["Work", "Welcome", "Remote board"])
+      .toEqual(["Work", "Demo board", "Remote board"])
   })
 
   test("folders made before signing in go with the boards to the account", async ({

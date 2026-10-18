@@ -2,7 +2,7 @@ const appOrigin = import.meta.env.DEV
   ? "http://localhost:5173"
   : "https://app.doska.sh"
 
-export const app = `${appOrigin}/d/welcome`
+export const app = `${appOrigin}/d/welcome?skip_onboarding=true`
 // bakemd serves the docs on its own port in dev (see @doska/docs).
 export const docs = import.meta.env.DEV
   ? "http://localhost:5175/docs/"
