@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import type { Lanes } from "@doska/contract"
 import * as api from "../../api/operations"
 import { pushUndo } from "../../undo"
 import { keys } from "../keys"
@@ -25,6 +26,15 @@ export function useSetDashboardSort() {
   return useMutation({
     mutationFn: ({ id, sort }: { id: string; sort: string[] }) =>
       api.setDashboardSort(id, sort),
+    onSettled: () => qc.invalidateQueries({ queryKey: keys.dashboards }),
+  })
+}
+
+export function useSetDashboardLanes() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, lanes }: { id: string; lanes: Lanes }) =>
+      api.setDashboardLanes(id, lanes),
     onSettled: () => qc.invalidateQueries({ queryKey: keys.dashboards }),
   })
 }

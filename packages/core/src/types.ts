@@ -6,6 +6,7 @@ export type {
   Column,
   Dashboard,
   HistoryEntry,
+  Lanes,
   Member,
   SidebarItem,
   SidebarLayout,

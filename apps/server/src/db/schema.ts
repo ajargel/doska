@@ -3,6 +3,7 @@ import type {
   Card,
   Column,
   HistoryEntry,
+  Lanes,
   MemberRole,
   SidebarItem,
 } from "@doska/contract"
@@ -66,6 +67,10 @@ export const dashboards = pgTable(
     title: text("title").notNull(),
     position: text("position").notNull(),
     sort: jsonb("sort").$type<string[]>().notNull().default([]),
+    lanes: jsonb("lanes")
+      .$type<Lanes>()
+      .notNull()
+      .default({ enabled: false, tags: [] }),
     ownerId: text("owner_id"),
     publicToken: text("public_token").unique(),
     publishedAt: bigint("published_at", { mode: "number" }),

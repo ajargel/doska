@@ -162,6 +162,13 @@
       "when": 1792396993623,
       "tag": "0022_card_parent",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792411231681,
+      "tag": "0023_board_lanes",
+      "breakpoints": true
     }
   ]
 }

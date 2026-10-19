@@ -23,3 +23,10 @@ export {
   type SortKey,
 } from "./sort-cards"
 export { CardTree, subtaskProgress, topLevelOnly } from "./card-tree"
+export {
+  groupByLane,
+  laneOf,
+  OTHER_LANE,
+  retagForLane,
+  type LaneKey,
+} from "./lanes"

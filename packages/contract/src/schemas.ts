@@ -152,11 +152,24 @@ export const COLUMN_FIELD_GROUP: Record<
   deletedAt: "deleted",
 }
 
+export const LanesSchema = z.object({
+  enabled: z.boolean(),
+  tags: z.array(z.string()),
+})
+
+export type Lanes = z.infer<typeof LanesSchema>
+
 export const DashboardSchema = z.object({
   id: z.string(),
   title: z.string(),
   position: z.string(),
   sort: z.array(z.string()).default([]),
+  /**
+   * Tag swimlanes: with `enabled`, the board splits into one row per tag in
+   * `tags`, in order. A card sits in the first lane whose tag it carries, and
+   * in a trailing "Other" lane if none.
+   */
+  lanes: LanesSchema.default({ enabled: false, tags: [] }),
   updatedAt: z.number(),
   deletedAt: z.number().nullable(),
 })

@@ -53,6 +53,7 @@ export async function applyOne(
       title: record.title,
       position: record.position,
       sort: record.sort,
+      lanes: record.lanes,
       ownerId: userId,
       updatedAt: record.updatedAt,
       deletedAt: record.deletedAt,

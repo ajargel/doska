@@ -379,6 +379,7 @@ export const seedDashboards: Dashboard[] = [
     title: "Demo board",
     position: "a0",
     sort: [],
+    lanes: { enabled: false, tags: [] },
     updatedAt: 0,
     deletedAt: null,
   },

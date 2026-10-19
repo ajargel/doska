@@ -84,6 +84,7 @@ export async function installBoard(columns: Column[]): Promise<TestBoard> {
     title: "Board",
     position: "a0",
     sort: [],
+    lanes: { enabled: false, tags: [] },
     updatedAt: 1,
     deletedAt: null,
   }

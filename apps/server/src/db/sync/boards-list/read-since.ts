@@ -54,6 +54,7 @@ export async function readSince(
         title: r.title,
         position: r.position,
         sort: r.sort,
+        lanes: r.lanes,
         updatedAt: r.updatedAt,
         deletedAt: r.deletedAt,
       },

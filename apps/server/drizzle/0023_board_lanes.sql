@@ -1,0 +1,1 @@
+ALTER TABLE "dashboards" ADD COLUMN "lanes" jsonb DEFAULT '{"enabled":false,"tags":[]}'::jsonb NOT NULL;
