@@ -11,6 +11,7 @@ import {
   ArrowRightLeft,
   History,
   ListTree,
+  Rows3,
   MoreHorizontal,
   Trash2,
 } from "lucide-react"
@@ -18,7 +19,13 @@ import { ConfirmDialog } from "../../confirm-dialog"
 import { HistoryModal } from "../../history/history-modal"
 import { ReorderColumnsModal } from "../reorder-columns/reorder-columns-modal"
 import { SortSub } from "./sort-sub"
-import { setHideSubtasks, useHideSubtasks, type Column } from "@doska/core"
+import {
+  setHideSubtasks,
+  useHideSubtasks,
+  type Column,
+  type Lanes,
+} from "@doska/core"
+import { LanesModal } from "../lanes/lanes-modal"
 
 interface IProps {
   boardId: string
@@ -26,6 +33,8 @@ interface IProps {
   columns: Column[]
   sort: string[]
   onChangeSort: (sort: string[]) => void
+  lanes: Lanes
+  onChangeLanes: (lanes: Lanes) => void
   onDelete: () => void
   onReorderColumns: (changed: Column[]) => void
 }
@@ -36,12 +45,15 @@ export function BoardActionsMenu({
   columns,
   sort,
   onChangeSort,
+  lanes,
+  onChangeLanes,
   onDelete,
   onReorderColumns,
 }: IProps) {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [reorderOpen, setReorderOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [lanesOpen, setLanesOpen] = useState(false)
   const hideSubtasks = useHideSubtasks(boardId)
 
   return (
@@ -68,6 +80,10 @@ export function BoardActionsMenu({
           >
             <ArrowRightLeft />
             Reorder columns
+          </MenuItem>
+          <MenuItem onClick={() => setLanesOpen(true)}>
+            <Rows3 />
+            Swimlanes…
           </MenuItem>
           <MenuItem onClick={() => setHideSubtasks(boardId, !hideSubtasks)}>
             <ListTree />
@@ -98,6 +114,15 @@ export function BoardActionsMenu({
         columns={columns}
         onReorder={onReorderColumns}
       />
+      {lanesOpen && (
+        <LanesModal
+          boardId={boardId}
+          open
+          onOpenChange={setLanesOpen}
+          lanes={lanes}
+          onChangeLanes={onChangeLanes}
+        />
+      )}
       <HistoryModal
         entityType="board"
         entityId={boardId}

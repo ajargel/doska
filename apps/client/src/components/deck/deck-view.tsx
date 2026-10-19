@@ -13,6 +13,7 @@ import {
   useSetColumnColor,
   useSetColumnDone,
   useSetDashboardSort,
+  useSetDashboardLanes,
   type CardPatch,
   useBoard,
   setBoardView,
@@ -46,6 +47,7 @@ export function DeckView({ dashboard }: { dashboard: Dashboard }) {
   const { mutate: renameDashboard } = useRenameDashboard()
   const { mutate: deleteDashboard } = useDeleteDashboard()
   const { mutate: setDashboardSort } = useSetDashboardSort()
+  const { mutate: setDashboardLanes } = useSetDashboardLanes()
 
   const { data: board, isPending } = useBoard(id)
 
@@ -67,13 +69,17 @@ export function DeckView({ dashboard }: { dashboard: Dashboard }) {
 
   const { tagFilters, userFilters } = useDeck()
   const hideSubtasks = useHideSubtasks(id)
+  const lanes = dashboard.lanes
   const handleDragEnd = useDragEnd(
     board,
     moveCard,
     dashboard.sort ?? [],
     tagFilters,
     userFilters,
-    hideSubtasks
+    hideSubtasks,
+    lanes?.enabled
+      ? { lanes, onRetag: (cardId, tags) => patchCard(cardId, { tags }) }
+      : undefined
   )
 
   return (
@@ -85,6 +91,9 @@ export function DeckView({ dashboard }: { dashboard: Dashboard }) {
         setColumnCollapsed({ id: columnId, collapsed })
       }
       onAddCard={createCard}
+      onAddCardInLane={(columnId, lane) =>
+        createCard(lane === null ? columnId : { columnId, tags: [lane] })
+      }
       onAddAndOpenCard={(columnId) =>
         createCard(columnId, {
           onSuccess: (cardId) => navigate(routes.card.to(cardId)),
@@ -108,6 +117,7 @@ export function DeckView({ dashboard }: { dashboard: Dashboard }) {
         deleteDashboard(id)
       }}
       onChangeSort={(sort) => setDashboardSort({ id, sort })}
+      onChangeLanes={(lanes) => setDashboardLanes({ id, lanes })}
       view={view}
       onChangeView={(next) => setBoardView(id, next)}
       onDragEnd={handleDragEnd}

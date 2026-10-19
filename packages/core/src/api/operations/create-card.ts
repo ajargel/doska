@@ -1,4 +1,5 @@
 import { CARD_GROUPS } from "@doska/contract"
+import type { Card } from "../../types"
 import { generateKeyBetween } from "fractional-indexing"
 import { fallbackCard } from "../../seed"
 import { db } from "../db/db"
@@ -8,12 +9,13 @@ import { sync } from "../sync"
 import { touchCard } from "../sync/touch"
 
 /**
- * Creates an empty card at the top of a column and returns its new id. With
- * `parentId` it starts as that card's sub-task; see {@link createSubtask}.
+ * Creates an empty card at the top of a column and returns its new id. `init`
+ * can start it as a sub-task (see {@link createSubtask}) or with tags, as a
+ * swimlane does.
  */
 export async function createCard(
   columnId: string,
-  parentId: string | null = null
+  init: Partial<Pick<Card, "parentId" | "tags">> = {}
 ): Promise<string> {
   const column = await db.getColumn(columnId)
   if (!column || !live(column))
@@ -34,7 +36,8 @@ export async function createCard(
     columnId,
     position,
     title: "",
-    parentId,
+    parentId: init.parentId ?? null,
+    tags: init.tags ?? [],
     deletedAt: null,
   }
   await db.setCard(touchCard(card, CARD_GROUPS))

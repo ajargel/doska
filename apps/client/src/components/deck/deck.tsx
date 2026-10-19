@@ -13,6 +13,8 @@ import {
   useBoardTree,
   useHideSubtasks,
   type CardPatch,
+  type LaneKey,
+  type Lanes,
 } from "@doska/core"
 import { useLandingSlot } from "@/lib/hooks"
 import { useDeck } from "@/providers/deck/deck-context"
@@ -24,6 +26,7 @@ import { DragStateProvider } from "./drag-state"
 import { DeckHeader } from "./deck-header/deck-header"
 import { TagFilterPills } from "./deck-header/tag-filter-pills"
 import { DeckRowsView } from "./deck-rows-view"
+import { LaneBoard } from "./lanes/lane-board"
 import { SyncIndicator } from "./sync-indicator"
 import { useSidebarCardDrop } from "./use-sidebar-card-drop"
 
@@ -33,6 +36,8 @@ interface IProps {
   isLoading: boolean
   onToggleBody: (columnId: string, collapsed: boolean) => void
   onAddCard: (columnId: string) => void
+  /** Adds a card to a column within a swimlane, tagged for it. */
+  onAddCardInLane: (columnId: string, lane: LaneKey) => void
   /** Creates a card and opens it, for the header's add. */
   onAddAndOpenCard: (columnId: string) => void
   onAddColumn: () => void
@@ -44,6 +49,7 @@ interface IProps {
   onRenameDashboard: (name: string) => void
   onDeleteDashboard: () => void
   onChangeSort: (sort: string[]) => void
+  onChangeLanes: (lanes: Lanes) => void
   view: DashboardView
   onChangeView: (view: DashboardView) => void
   onDragEnd: (result: DropResult) => void
@@ -57,6 +63,7 @@ export function Deck({
   isLoading,
   onToggleBody,
   onAddCard,
+  onAddCardInLane,
   onAddAndOpenCard,
   onAddColumn,
   onReorderColumns,
@@ -67,6 +74,7 @@ export function Deck({
   onRenameDashboard,
   onDeleteDashboard,
   onChangeSort,
+  onChangeLanes,
   view,
   onChangeView,
   onDragEnd,
@@ -74,6 +82,7 @@ export function Deck({
   onPatchCard,
 }: IProps) {
   const [isDragging, setIsDragging] = useState(false)
+  const [draggingId, setDraggingId] = useState<string | null>(null)
   const sidebarDrop = useSidebarCardDrop(isDragging)
 
   const { tagFilters = [], userFilters = [] } = useDeck()
@@ -97,9 +106,13 @@ export function Deck({
   return (
     <DragStateProvider value={isDragging}>
       <DragDropContext
-        onDragStart={() => setIsDragging(true)}
+        onDragStart={(start) => {
+          setIsDragging(true)
+          setDraggingId(start.draggableId)
+        }}
         onDragEnd={(result) => {
           setIsDragging(false)
+          setDraggingId(null)
           const boardId = sidebarDrop.takeDrop()
           if (boardId) {
             onMoveCardToBoard({ id: result.draggableId, boardId })
@@ -124,6 +137,8 @@ export function Deck({
                 onReorderColumns={onReorderColumns}
                 sort={sort}
                 onChangeSort={onChangeSort}
+                lanes={dashboard.lanes ?? { enabled: false, tags: [] }}
+                onChangeLanes={onChangeLanes}
                 view={view}
                 onChangeView={onChangeView}
                 onAddCard={() => {
@@ -141,6 +156,30 @@ export function Deck({
         >
           {view === "rows" ? (
             <DeckRowsView board={visible} title={dashboard.title} />
+          ) : dashboard.lanes?.enabled ? (
+            <>
+              <LaneBoard
+                columns={orderedColumns}
+                cards={visible.cards}
+                lanes={dashboard.lanes}
+                tree={tree}
+                sort={sort}
+                draggingId={draggingId}
+                compact={sidebarDrop.overSidebar}
+                vanishOnDrop={sidebarDrop.landing}
+                addCardDisabledReason={filteredReason}
+                place={place}
+                onDropSettled={release}
+                onPatchCard={onPatchCard}
+                onAddCard={onAddCardInLane}
+                onToggleBody={onToggleBody}
+                onRenameColumn={onRenameColumn}
+                onChangeColumnColor={onChangeColumnColor}
+                onChangeColumnDone={onChangeColumnDone}
+                onDeleteColumn={onDeleteColumn}
+              />
+              <AddColumn onAdd={onAddColumn} />
+            </>
           ) : (
             <>
               {grouped.map(({ column, cards }) => {

@@ -6,10 +6,14 @@ import { pushUndo } from "../../undo"
 import { cardWriteKeys, keys } from "../keys"
 import { replaceById, useBoardPatch } from "./board-patch"
 
+/** Takes a column id, or a column plus the tags to start with (a lane's). */
 export function useCreateCard(deckId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (columnId: string) => api.createCard(columnId),
+    mutationFn: (to: string | { columnId: string; tags: string[] }) =>
+      typeof to === "string"
+        ? api.createCard(to)
+        : api.createCard(to.columnId, { tags: to.tags }),
     onSettled: () => qc.invalidateQueries({ queryKey: keys.board(deckId) }),
   })
 }

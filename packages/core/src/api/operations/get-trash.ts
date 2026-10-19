@@ -45,9 +45,9 @@ export async function getTrash(): Promise<TrashEntry[]> {
   // under the parent rather than as a deletion of its own.
   const tree = new CardTree(cards)
   const sweptWith = (card: Card, deletedAt: number) =>
-    tree.descendantsOf(card.id).filter(
-      (sub) => sub.deletedAt !== null && sub.deletedAt >= deletedAt
-    )
+    tree
+      .descendantsOf(card.id)
+      .filter((sub) => sub.deletedAt !== null && sub.deletedAt >= deletedAt)
   const sweptUp = new Set<string>()
   for (const card of cards)
     if (card.deletedAt !== null)

@@ -6,7 +6,7 @@ import { SearchButton } from "./search-button"
 import { RowViewButton } from "./row-view-button"
 import { ShareButton } from "./share-button"
 import { UserFilter } from "./user-filter"
-import type { Column, DashboardView } from "@doska/core"
+import type { Column, DashboardView, Lanes } from "@doska/core"
 import { VaultButton } from "./vault-button"
 import { isDesktop } from "@/lib/platform"
 
@@ -15,6 +15,8 @@ interface IProps {
   title: string
   columns: Column[]
   sort: string[]
+  lanes: Lanes
+  onChangeLanes: (lanes: Lanes) => void
   view: DashboardView
   onRename: (name: string) => void
   onDelete: () => void
@@ -30,6 +32,8 @@ export function DeckHeader({
   title,
   columns,
   sort,
+  lanes,
+  onChangeLanes,
   view,
   onRename,
   onDelete,
@@ -71,6 +75,8 @@ export function DeckHeader({
           columns={columns}
           sort={sort}
           onChangeSort={onChangeSort}
+          lanes={lanes}
+          onChangeLanes={onChangeLanes}
           onDelete={onDelete}
           onReorderColumns={onReorderColumns}
         />

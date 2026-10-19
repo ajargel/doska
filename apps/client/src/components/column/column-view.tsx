@@ -27,6 +27,126 @@ interface IProps {
   children: ReactNode
 }
 
+type HeadProps = Pick<
+  IProps,
+  "title" | "color" | "done" | "showBody" | "onToggleBody" | "onRename" | "menu"
+>
+
+/** A column's title row: swatch, name, done badge, body toggle and menu. */
+export function ColumnHead({
+  title,
+  color,
+  done,
+  showBody,
+  onToggleBody,
+  onRename,
+  menu,
+}: HeadProps) {
+  return (
+    <div
+      className={cn(
+        "sticky top-0 z-10 flex h-15 shrink-0 items-center justify-between gap-2 px-4 py-3 md:px-0",
+        "bg-background/80 backdrop-blur-xs",
+        "text-muted-foreground"
+      )}
+    >
+      <div className="flex min-w-0 items-center gap-1.5">
+        <ColumnSwatch color={color} labelled className="ml-1" />
+        <div>
+          <ColumnTitle title={title} onRename={onRename} />
+          {/* The only place the flag shows — its toggle lives in the menu. */}
+          {!!done && (
+            <div className="absolute -mt-1 ml-2 text-xs text-muted-foreground/50">
+              Marks cards as done
+            </div>
+          )}
+        </div>
+        {done && (
+          <Check
+            aria-label={`${title} is the done column`}
+            className="-ml-2 size-4 shrink-0"
+          />
+        )}
+      </div>
+      <div className="flex items-center">
+        <Button
+          variant="ghost"
+          size="icon-lg"
+          aria-pressed={showBody}
+          aria-label={
+            showBody ? `Hide body in ${title}` : `Show body in ${title}`
+          }
+          onClick={onToggleBody}
+        >
+          {showBody ? <FoldVertical /> : <UnfoldVertical />}
+        </Button>
+        {menu}
+      </div>
+    </div>
+  )
+}
+
+type BoxProps = Pick<
+  IProps,
+  | "title"
+  | "onAddCard"
+  | "addCardDisabledReason"
+  | "isDraggingOver"
+  | "listRef"
+  | "listProps"
+  | "children"
+> & { className?: string }
+
+/** The box holding a column's cards, with its add-card button. */
+export function ColumnBox({
+  title,
+  onAddCard,
+  addCardDisabledReason,
+  isDraggingOver,
+  listRef,
+  listProps,
+  children,
+  className,
+}: BoxProps) {
+  return (
+    <div
+      className={cn(
+        "flex min-h-40 w-full shrink-0 flex-col rounded-2xl bg-background p-4 transition-colors",
+        "border border-sidebar-primary-foreground",
+        "shadow-inset",
+        isDraggingOver && "bg-primary/5 dark:bg-sidebar/50",
+        className
+      )}
+    >
+      {onAddCard && (
+        <Button
+          variant="muted"
+          onClick={() => {
+            if (!addCardDisabledReason) return onAddCard()
+            toast.custom(
+              (toastInstance) =>
+                createElement(AddCardBlockedToast, {
+                  visible: toastInstance.visible,
+                  reason: addCardDisabledReason,
+                }),
+              { id: "add-card-blocked", duration: 2500 }
+            )
+          }}
+          aria-disabled={!!addCardDisabledReason}
+          aria-label={`Add card to ${title}`}
+          className={cn("mb-3 w-full", addCardDisabledReason && "opacity-50")}
+          tooltip={addCardDisabledReason ?? false}
+        >
+          <Plus />
+        </Button>
+      )}
+      <div ref={listRef} {...listProps} className="flex flex-1 flex-col">
+        {children}
+      </div>
+    </div>
+  )
+}
+
 /** A column: its head, then the box holding its cards. */
 export function ColumnView({
   title,
@@ -49,80 +169,25 @@ export function ColumnView({
       aria-label={title}
       className="flex w-full shrink-0 snap-center flex-col overflow-y-auto overscroll-y-contain pb-6 xs:w-sm"
     >
-      <div
-        className={cn(
-          "sticky top-0 z-10 flex h-15 shrink-0 items-center justify-between gap-2 px-4 py-3 md:px-0",
-          "bg-background/80 backdrop-blur-xs",
-          "text-muted-foreground"
-        )}
+      <ColumnHead
+        title={title}
+        color={color}
+        done={done}
+        showBody={showBody}
+        onToggleBody={onToggleBody}
+        onRename={onRename}
+        menu={menu}
+      />
+      <ColumnBox
+        title={title}
+        onAddCard={onAddCard}
+        addCardDisabledReason={addCardDisabledReason}
+        isDraggingOver={isDraggingOver}
+        listRef={listRef}
+        listProps={listProps}
       >
-        <div className="flex min-w-0 items-center gap-1.5">
-          <ColumnSwatch color={color} labelled className="ml-1" />
-          <div>
-            <ColumnTitle title={title} onRename={onRename} />
-            {/* The only place the flag shows — its toggle lives in the menu. */}
-            {!!done && (
-              <div className="absolute -mt-1 ml-2 text-xs text-muted-foreground/50">
-                Marks cards as done
-              </div>
-            )}
-          </div>
-          {done && (
-            <Check
-              aria-label={`${title} is the done column`}
-              className="-ml-2 size-4 shrink-0"
-            />
-          )}
-        </div>
-        <div className="flex items-center">
-          <Button
-            variant="ghost"
-            size="icon-lg"
-            aria-pressed={showBody}
-            aria-label={
-              showBody ? `Hide body in ${title}` : `Show body in ${title}`
-            }
-            onClick={onToggleBody}
-          >
-            {showBody ? <FoldVertical /> : <UnfoldVertical />}
-          </Button>
-          {menu}
-        </div>
-      </div>
-      <div
-        className={cn(
-          "flex min-h-40 w-full shrink-0 flex-col rounded-2xl bg-background p-4 transition-colors",
-          "border border-sidebar-primary-foreground",
-          "shadow-inset",
-          isDraggingOver && "bg-primary/5 dark:bg-sidebar/50"
-        )}
-      >
-        {onAddCard && (
-          <Button
-            variant="muted"
-            onClick={() => {
-              if (!addCardDisabledReason) return onAddCard()
-              toast.custom(
-                (toastInstance) =>
-                  createElement(AddCardBlockedToast, {
-                    visible: toastInstance.visible,
-                    reason: addCardDisabledReason,
-                  }),
-                { id: "add-card-blocked", duration: 2500 }
-              )
-            }}
-            aria-disabled={!!addCardDisabledReason}
-            aria-label={`Add card to ${title}`}
-            className={cn("mb-3 w-full", addCardDisabledReason && "opacity-50")}
-            tooltip={addCardDisabledReason ?? false}
-          >
-            <Plus />
-          </Button>
-        )}
-        <div ref={listRef} {...listProps} className="flex flex-1 flex-col">
-          {children}
-        </div>
-      </div>
+        {children}
+      </ColumnBox>
     </div>
   )
 }

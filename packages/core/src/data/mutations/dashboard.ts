@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import type { Lanes } from "@doska/contract"
+import type { Dashboard, Lanes } from "../../types"
 import * as api from "../../api/operations"
 import { pushUndo } from "../../undo"
 import { keys } from "../keys"
@@ -30,11 +30,22 @@ export function useSetDashboardSort() {
   })
 }
 
+/**
+ * Written to the cache up front: the lanes dialog builds each change on the
+ * last, so a second edit before the first settles must already see it.
+ */
 export function useSetDashboardLanes() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ id, lanes }: { id: string; lanes: Lanes }) =>
       api.setDashboardLanes(id, lanes),
+    onMutate: async ({ id, lanes }) => {
+      // A read already in flight would land the old setting over this one.
+      await qc.cancelQueries({ queryKey: keys.dashboards })
+      qc.setQueryData<Dashboard[]>(keys.dashboards, (list) =>
+        list?.map((d) => (d.id === id ? { ...d, lanes } : d))
+      )
+    },
     onSettled: () => qc.invalidateQueries({ queryKey: keys.dashboards }),
   })
 }
