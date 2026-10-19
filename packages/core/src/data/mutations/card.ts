@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import * as api from "../../api/operations"
 import type { Card } from "../../types"
+import { CardTree } from "../../utils"
 import { pushUndo } from "../../undo"
 import { cardWriteKeys, keys } from "../keys"
 import { replaceById, useBoardPatch } from "./board-patch"
@@ -10,6 +11,29 @@ export function useCreateCard(deckId: string) {
   return useMutation({
     mutationFn: (columnId: string) => api.createCard(columnId),
     onSettled: () => qc.invalidateQueries({ queryKey: keys.board(deckId) }),
+  })
+}
+
+/** Creates an empty sub-task in its parent's column; resolves to its id. */
+export function useCreateSubtask(deckId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (parentId: string) => api.createSubtask(parentId),
+    onSettled: () => qc.invalidateQueries({ queryKey: keys.board(deckId) }),
+  })
+}
+
+/** Makes a card a sub-task of another on its board, or top-level with `null`. */
+export function useSetCardParent(deckId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, parentId }: { id: string; parentId: string | null }) =>
+      api.setCardParent(id, parentId),
+    onSettled: (_data, _err, { id }) => {
+      qc.invalidateQueries({ queryKey: keys.board(deckId) })
+      for (const key of cardWriteKeys(id))
+        qc.invalidateQueries({ queryKey: key })
+    },
   })
 }
 
@@ -127,10 +151,17 @@ export function useMoveCardToBoard(deckId: string) {
     ({ id, boardId }: { id: string; boardId: string }) =>
       api.moveCardToBoard(id, boardId),
     {
-      apply: (board, { id }) => ({
-        ...board,
-        cards: board.cards.filter((card) => card.id !== id),
-      }),
+      // Its sub-tasks go along with it.
+      apply: (board, { id }) => {
+        const gone = new Set([
+          id,
+          ...new CardTree(board.cards).descendantsOf(id).map((c) => c.id),
+        ])
+        return {
+          ...board,
+          cards: board.cards.filter((card) => !gone.has(card.id)),
+        }
+      },
       flush: true,
       also: ({ id, boardId }) => [
         ...cardWriteKeys(id),

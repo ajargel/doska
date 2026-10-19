@@ -17,6 +17,7 @@ import {
   useBoard,
   setBoardView,
   useBoardView,
+  useHideSubtasks,
   type Dashboard,
 } from "@doska/core"
 import { useCallback } from "react"
@@ -65,12 +66,14 @@ export function DeckView({ dashboard }: { dashboard: Dashboard }) {
   )
 
   const { tagFilters, userFilters } = useDeck()
+  const hideSubtasks = useHideSubtasks(id)
   const handleDragEnd = useDragEnd(
     board,
     moveCard,
     dashboard.sort ?? [],
     tagFilters,
-    userFilters
+    userFilters,
+    hideSubtasks
   )
 
   return (

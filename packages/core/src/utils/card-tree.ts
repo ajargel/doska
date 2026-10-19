@@ -93,3 +93,11 @@ export function subtaskProgress(
   const done = children.filter((c) => doneColumnIds.has(c.columnId)).length
   return { done, total: children.length }
 }
+
+/** `cards` minus every sub-task, for a board hiding them. */
+export function topLevelOnly<T extends Linked>(
+  cards: readonly T[],
+  tree: CardTree<Linked>
+): T[] {
+  return cards.filter((card) => tree.isRoot(card.id))
+}

@@ -7,12 +7,18 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from "@doska/ui-kit"
-import { ArrowRightLeft, History, MoreHorizontal, Trash2 } from "lucide-react"
+import {
+  ArrowRightLeft,
+  History,
+  ListTree,
+  MoreHorizontal,
+  Trash2,
+} from "lucide-react"
 import { ConfirmDialog } from "../../confirm-dialog"
 import { HistoryModal } from "../../history/history-modal"
 import { ReorderColumnsModal } from "../reorder-columns/reorder-columns-modal"
 import { SortSub } from "./sort-sub"
-import type { Column } from "@doska/core"
+import { setHideSubtasks, useHideSubtasks, type Column } from "@doska/core"
 
 interface IProps {
   boardId: string
@@ -36,6 +42,7 @@ export function BoardActionsMenu({
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [reorderOpen, setReorderOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const hideSubtasks = useHideSubtasks(boardId)
 
   return (
     <>
@@ -61,6 +68,10 @@ export function BoardActionsMenu({
           >
             <ArrowRightLeft />
             Reorder columns
+          </MenuItem>
+          <MenuItem onClick={() => setHideSubtasks(boardId, !hideSubtasks)}>
+            <ListTree />
+            {hideSubtasks ? "Show sub-tasks" : "Hide sub-tasks"}
           </MenuItem>
           <MenuItem onClick={() => setHistoryOpen(true)}>
             <History />

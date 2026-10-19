@@ -5,6 +5,7 @@ import { DeadlineSub } from "./deadline-sub"
 import { DeleteItem } from "./delete-item"
 import { MoveToBoardSub } from "./move-to-board-sub"
 import { MoveToColumnSub } from "./move-to-column-sub"
+import { ParentSub } from "./parent-sub"
 import { PrioritySub } from "./priority-sub"
 import { TagsSub } from "./tags-sub"
 import { UsersSub } from "./users-sub"
@@ -34,6 +35,7 @@ export function CardMenuItems({
       <MenuSeparator />
       <MoveToColumnSub cardId={cardId} />
       <MoveToBoardSub cardId={cardId} />
+      <ParentSub cardId={cardId} />
       <MenuSeparator />
       <PrioritySub cardId={cardId} />
       <TagsSub cardId={cardId} />

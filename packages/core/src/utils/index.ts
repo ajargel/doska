@@ -22,4 +22,4 @@ export {
   SORT_MODES,
   type SortKey,
 } from "./sort-cards"
-export { CardTree, subtaskProgress } from "./card-tree"
+export { CardTree, subtaskProgress, topLevelOnly } from "./card-tree"

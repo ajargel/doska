@@ -2,12 +2,14 @@ import type { DropResult } from "@hello-pangea/dnd"
 import {
   type Board,
   type Card,
+  CardTree,
   byPosition,
   dropNeighbours,
   filterByTags,
   filterByUsers,
   keyBetween,
   sortCards,
+  topLevelOnly,
 } from "@doska/core"
 
 /**
@@ -19,7 +21,8 @@ export function useDragEnd(
   moveCard: (changed: Card[]) => void,
   sort: string[],
   tagFilters: string[] = [],
-  userFilters: string[] = []
+  userFilters: string[] = [],
+  hideSubtasks = false
 ) {
   return function handleDragEnd({
     source,
@@ -44,14 +47,20 @@ export function useDragEnd(
 
     // The destination column as rendered, minus the card being dropped, so the
     // insertion index lines up with the neighbors at the drop site.
+    const filtered = filterByUsers(
+      filterByTags(column, tagFilters),
+      userFilters
+    )
     const destCards = sortCards(
-      filterByUsers(filterByTags(column, tagFilters), userFilters),
+      hideSubtasks
+        ? topLevelOnly(filtered, new CardTree(board.cards))
+        : filtered,
       sort
     )
 
     let [prev, next] = dropNeighbours(destCards, destination.index, moved, sort)
 
-    if (tagFilters.length > 0 || userFilters.length > 0) {
+    if (tagFilters.length > 0 || userFilters.length > 0 || hideSubtasks) {
       if (prev) next = column[column.indexOf(prev) + 1]
       else if (next) prev = column[column.indexOf(next) - 1]
     }

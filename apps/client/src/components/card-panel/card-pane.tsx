@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import type { CardPatch, Card } from "@doska/core"
 import { CardTags } from "../card/card-tags"
+import { SubtasksSection } from "../card/subtasks/subtasks-section"
 import { CardEditor } from "./card-editor"
 import { ConflictBanner } from "./conflict-banner"
 import { rebaseDraft, type DraftState } from "./draft"
@@ -75,11 +76,14 @@ export function CardPane({
         )
       }
       tags={
-        <CardTags
-          tags={content.tags ?? []}
-          users={content.users ?? []}
-          className="border-t-0 px-4"
-        />
+        <>
+          <CardTags
+            tags={content.tags ?? []}
+            users={content.users ?? []}
+            className="border-t-0 px-4"
+          />
+          <SubtasksSection cardId={cardId} />
+        </>
       }
       onChangeTitle={(title) => {
         setDraft((d) => ({ ...d, title }))

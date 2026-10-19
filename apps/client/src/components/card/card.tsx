@@ -6,8 +6,14 @@ import {
   type ReactNode,
 } from "react"
 import { useLocation } from "wouter"
-import type { CardPatch, Card as CardData, Column } from "@doska/core"
+import {
+  useSubtaskInfo,
+  type CardPatch,
+  type Card as CardData,
+  type Column,
+} from "@doska/core"
 import { routes } from "@/lib/routes"
+import { useDeck } from "@/providers/deck/deck-context"
 import { useIsRevealed } from "@/providers/card-reveal/card-reveal-context"
 import { HistoryModal } from "../history/history-modal"
 import { CardAttachments } from "./attachments/card-attachments"
@@ -15,6 +21,7 @@ import { CardAttachmentImage } from "./attachments/card-attachment-image"
 import { CardContextMenu, CardMenu } from "./menu/card-menu"
 import { CardMarkdown } from "./card-markdown"
 import { CardView } from "./card-view"
+import { SubtaskChips } from "./subtasks/subtask-chips"
 
 interface IProps extends DetailedHTMLProps<
   HTMLAttributes<HTMLDivElement>,
@@ -45,6 +52,9 @@ export const Card = memo(function Card({
   const id = card.id
   const isRevealed = useIsRevealed(id)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const { id: deckId } = useDeck()
+  const subtasks = useSubtaskInfo(deckId, id)
+  const hasSubtasks = !!subtasks.parent || !!subtasks.progress
 
   const open = () => navigate(routes.card.to(id))
   const showHistory = () => setHistoryOpen(true)
@@ -68,7 +78,16 @@ export const Card = memo(function Card({
         isDragging={isDragging}
         isRevealed={isRevealed}
         lead={lead}
-        metaLead={metaLead}
+        metaLead={
+          hasSubtasks ? (
+            <>
+              {metaLead}
+              <SubtaskChips {...subtasks} />
+            </>
+          ) : (
+            metaLead
+          )
+        }
         imageCard={imageCard}
         action={
           <CardMenu cardId={id} onEdit={open} onShowHistory={showHistory} />

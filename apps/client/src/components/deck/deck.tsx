@@ -9,6 +9,9 @@ import {
   filterByUsers,
   groupCardsByColumn,
   sortCards,
+  topLevelOnly,
+  useBoardTree,
+  useHideSubtasks,
   type CardPatch,
 } from "@doska/core"
 import { useLandingSlot } from "@/lib/hooks"
@@ -76,9 +79,15 @@ export function Deck({
   const { tagFilters = [], userFilters = [] } = useDeck()
   const isFiltered = tagFilters.length > 0 || userFilters.length > 0
   const filteredReason = isFiltered ? "Clear filters to add cards" : undefined
+  const hideSubtasks = useHideSubtasks(dashboard.id)
+  const { tree } = useBoardTree(dashboard.id)
+  const filtered = filterByUsers(
+    filterByTags(board.cards, tagFilters),
+    userFilters
+  )
   const visible = {
     ...board,
-    cards: filterByUsers(filterByTags(board.cards, tagFilters), userFilters),
+    cards: hideSubtasks ? topLevelOnly(filtered, tree) : filtered,
   }
   const grouped = groupCardsByColumn(visible)
   const orderedColumns = [...board.columns].sort(byPosition)
