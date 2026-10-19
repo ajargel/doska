@@ -17,6 +17,7 @@ const card: Card = {
   updatedAt: 10,
   deletedAt: null,
   stamps: {},
+  parentId: null,
   bodyConflict: null,
 }
 
@@ -56,6 +57,7 @@ describe("touchCard", () => {
       tags: 10,
       users: 10,
       attachments: 10,
+      parent: 10,
       deleted: 10,
       conflict: 10,
     })

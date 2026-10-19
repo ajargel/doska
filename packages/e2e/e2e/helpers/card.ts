@@ -325,6 +325,7 @@ export async function remoteAddCard(
           updatedAt: Date.now(),
           deletedAt: null,
           stamps: {},
+          parentId: null,
           bodyConflict: null,
         },
       },

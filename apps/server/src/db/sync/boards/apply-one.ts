@@ -8,6 +8,7 @@ import { eq } from "drizzle-orm"
 import { cards, columns } from "../../schema"
 import { allocateCardNumber } from "../constants"
 import type { Tx } from "../core/counter"
+import { guardParent } from "./guard-parent"
 import { mergeCardBody, type CardRow } from "./merge-card-body"
 
 type ColumnRow = typeof columns.$inferSelect
@@ -82,6 +83,7 @@ export async function applyOne(
         tags: record.tags,
         users: record.users,
         attachments: record.attachments,
+        parentId: record.parentId,
         updatedAt: record.updatedAt,
         deletedAt: record.deletedAt,
         stamps: record.stamps,
@@ -99,6 +101,7 @@ export async function applyOne(
         changed = changed || bodyMerge.changed
       }
       if (!changed) return false
+      card = await guardParent(tx, boardId, stored, card)
 
       const row: CardRow = {
         ...card,

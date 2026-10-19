@@ -110,6 +110,7 @@ export function registerCardTools(server: McpServer, board: Board): void {
           updatedAt: now,
           deletedAt: null,
           stamps: {},
+          parentId: null,
           bodyConflict: null,
         },
         CARD_GROUPS,

@@ -23,6 +23,7 @@ export const CARD_GROUPS = [
   "tags",
   "users",
   "attachments",
+  "parent",
   "deleted",
   "conflict",
 ] as const
@@ -80,6 +81,11 @@ export const CardSchema = z.object({
   users: z.array(z.string()).default([]),
   /** Attached files; travels with the card's last-writer-wins record. */
   attachments: z.array(AttachmentSchema).default([]),
+  /**
+   * The card this one is a sub-task of; `null` for a top-level card. Always on
+   * the same board. A parent that is missing or deleted reads as top-level.
+   */
+  parentId: z.string().nullable().default(null),
   updatedAt: z.number(),
   deletedAt: z.number().nullable(),
   stamps: z.partialRecord(z.enum(CARD_GROUPS), z.number()).default({}),
@@ -107,6 +113,7 @@ export const CARD_FIELD_GROUP: Record<
   tags: "tags",
   users: "users",
   attachments: "attachments",
+  parentId: "parent",
   deletedAt: "deleted",
   bodyConflict: "conflict",
 }

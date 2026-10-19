@@ -5,6 +5,8 @@ import { db } from "../db/db"
 import { recordHistory } from "../history/record-history"
 import { sync } from "../sync"
 import { touchCard } from "../sync/touch"
+import type { Card } from "../../types"
+import { boardTree } from "./board-tree"
 import { live } from "./live"
 import { newId } from "./new-id"
 
@@ -16,7 +18,7 @@ import { newId } from "./new-id"
  *
  * Across boards that is a fresh id: the server files a card under the board it
  * was first pushed to and never re-files it, so the card is copied onto the new
- * board and the original tombstoned.
+ * board and the original tombstoned. Its sub-tasks are copied along with it.
  */
 export async function moveCardToColumn(
   id: string,
@@ -43,23 +45,35 @@ export async function moveCardToColumn(
     return id
   }
 
-  const copyId = newId("card")
-  await db.setCard(
-    touchCard(
-      { ...card, id: copyId, columnId, position, number: null },
-      CARD_GROUPS
+  // Read before the move: the copies below would join the old board's tree.
+  const subtasks = (await boardTree(from.dashboardId))
+    .descendantsOf(id)
+    .filter(live)
+
+  // Its parent stays behind on the old board.
+  const copyId = await copyAcross(card, { columnId, position, parentId: null })
+
+  // Sub-tasks follow into the same-named column, else wherever the card went.
+  const toColumns = (await db.getColumns()).filter(
+    (c) => c.dashboardId === to.dashboardId && live(c)
+  )
+  const fromColumns = new Map(
+    (await db.getColumns()).map((c) => [c.id, c.title])
+  )
+  const copies = new Map([[id, copyId]])
+  for (const sub of subtasks) {
+    const title = fromColumns.get(sub.columnId)
+    const target = toColumns.find((c) => c.title === title) ?? to
+    const top = (await db.getCards(target.id)).filter(live).sort(byPosition)[0]
+    copies.set(
+      sub.id,
+      await copyAcross(sub, {
+        columnId: target.id,
+        position: generateKeyBetween(null, top?.position ?? null),
+        parentId: sub.parentId ? (copies.get(sub.parentId) ?? null) : null,
+      })
     )
-  )
-  sync.markDirty("cards", copyId)
-  // Emptied first
-  await db.softDeleteCard(
-    touchCard({ ...card, title: "", body: "", attachments: [] }, [
-      "title",
-      "body",
-      "attachments",
-    ])
-  )
-  sync.markDirty("cards", id)
+  }
 
   const fromBoard = await db.getDashboard(from.dashboardId)
   const toBoard = await db.getDashboard(to.dashboardId)
@@ -77,5 +91,30 @@ export async function moveCardToColumn(
     ...move,
     fromCard: id,
   })
+  return copyId
+}
+
+/**
+ * Copies a card onto another board under a fresh id and tombstones the
+ * original, emptied first. Returns the copy's id.
+ */
+async function copyAcross(
+  card: Card,
+  place: Pick<Card, "columnId" | "position" | "parentId">
+): Promise<string> {
+  const copyId = newId("card")
+  await db.setCard(
+    touchCard({ ...card, ...place, id: copyId, number: null }, CARD_GROUPS)
+  )
+  sync.markDirty("cards", copyId)
+  // Emptied first
+  await db.softDeleteCard(
+    touchCard({ ...card, title: "", body: "", attachments: [] }, [
+      "title",
+      "body",
+      "attachments",
+    ])
+  )
+  sync.markDirty("cards", card.id)
   return copyId
 }

@@ -3,6 +3,7 @@ import { CARDS, COLUMNS, DASHBOARDS } from "../constants"
 import { db } from "../db/db"
 import { recordHistory } from "../history/record-history"
 import { sync } from "../sync"
+import { boardTree } from "./board-tree"
 import { live } from "./live"
 
 /** Which store a trashed thing lives in: the tombstoned ones, not the layout. */
@@ -19,6 +20,9 @@ export type TrashKind = typeof CARDS | typeof COLUMNS | typeof DASHBOARDS
  *
  * Up: a card whose column or board is still tombstoned would come back
  * invisible, so its ancestors come back with it.
+ *
+ * A card's sub-tasks count as its descendants here, though they sit in
+ * columns of their own.
  */
 const cascadedFrom = <T extends { deletedAt: number | null }>(
   records: T[],
@@ -76,6 +80,13 @@ export async function restore(kind: TrashKind, id: string): Promise<void> {
     title = card.title
     cards.push(card)
     if (!live(column)) revivedColumns.push(column)
+    const tree = await boardTree(dashboard.id)
+    for (const sub of cascadedFrom(tree.descendantsOf(id), card.deletedAt)) {
+      cards.push(sub)
+      const subColumn = columns.find((c) => c.id === sub.columnId)
+      if (subColumn && !live(subColumn) && !revivedColumns.includes(subColumn))
+        revivedColumns.push(subColumn)
+    }
     if (!live(dashboard)) revivedDashboard = dashboard
   }
 

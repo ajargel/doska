@@ -7,8 +7,14 @@ import { live } from "./live"
 import { sync } from "../sync"
 import { touchCard } from "../sync/touch"
 
-/** Creates an empty card at the top of a column and returns its new id. */
-export async function createCard(columnId: string): Promise<string> {
+/**
+ * Creates an empty card at the top of a column and returns its new id. With
+ * `parentId` it starts as that card's sub-task; see {@link createSubtask}.
+ */
+export async function createCard(
+  columnId: string,
+  parentId: string | null = null
+): Promise<string> {
   const column = await db.getColumn(columnId)
   if (!column || !live(column))
     throw new Error(`createCard: no live column ${columnId}`)
@@ -28,6 +34,7 @@ export async function createCard(columnId: string): Promise<string> {
     columnId,
     position,
     title: "",
+    parentId,
     deletedAt: null,
   }
   await db.setCard(touchCard(card, CARD_GROUPS))

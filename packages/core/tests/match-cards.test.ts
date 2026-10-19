@@ -32,6 +32,7 @@ function card(fields: Partial<Card> & { id: string }): Card {
     updatedAt: 0,
     deletedAt: null,
     stamps: {},
+    parentId: null,
     bodyConflict: null,
     ...fields,
   }

@@ -1,4 +1,6 @@
 import { RETENTION_MS } from "@doska/contract"
+import type { Card } from "../../types"
+import { CardTree } from "../../utils"
 import { db } from "../db/db"
 import { live } from "./live"
 import type { TrashKind } from "./restore"
@@ -12,7 +14,7 @@ export interface TrashEntry {
   deletedAt: number
   /** When the retention sweep will hard-delete it. */
   expiresAt: number
-  /** How many cards come back with it; 0 for a card entry. */
+  /** How many cards come back with it; a card's own swept-up sub-tasks. */
   cardCount: number
 }
 
@@ -38,6 +40,18 @@ export async function getTrash(): Promise<TrashEntry[]> {
 
   const boardById = new Map(dashboards.map((d) => [d.id, d]))
   const columnById = new Map(columns.map((c) => [c.id, c]))
+
+  // A sub-task trashed along with its parent comes back with it, so it lists
+  // under the parent rather than as a deletion of its own.
+  const tree = new CardTree(cards)
+  const sweptWith = (card: Card, deletedAt: number) =>
+    tree.descendantsOf(card.id).filter(
+      (sub) => sub.deletedAt !== null && sub.deletedAt >= deletedAt
+    )
+  const sweptUp = new Set<string>()
+  for (const card of cards)
+    if (card.deletedAt !== null)
+      for (const sub of sweptWith(card, card.deletedAt)) sweptUp.add(sub.id)
 
   const cardsIn = (columnId: string) =>
     cards.filter((c) => c.columnId === columnId && !live(c)).length
@@ -87,7 +101,8 @@ export async function getTrash(): Promise<TrashEntry[]> {
       !column ||
       !live(column) ||
       !board ||
-      !live(board)
+      !live(board) ||
+      sweptUp.has(card.id)
     )
       continue
     const files = card.attachments ?? []
@@ -99,7 +114,7 @@ export async function getTrash(): Promise<TrashEntry[]> {
       context: `${board.title || "Untitled board"} · ${column.title}`,
       deletedAt,
       expiresAt: deletedAt + RETENTION_MS,
-      cardCount: 0,
+      cardCount: sweptWith(card, deletedAt).length,
     })
   }
 

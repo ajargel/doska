@@ -188,6 +188,7 @@ export async function readPublicBoard(
         priority: cards.priority,
         tags: cards.tags,
         attachments: cards.attachments,
+        parentId: cards.parentId,
         updatedAt: cards.updatedAt,
         deletedAt: cards.deletedAt,
       })

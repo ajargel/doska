@@ -37,6 +37,7 @@ const card: Card = {
   updatedAt: synced,
   deletedAt: null,
   stamps: {},
+  parentId: null,
   bodyConflict: null,
 }
 

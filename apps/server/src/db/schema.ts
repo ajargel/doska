@@ -112,13 +112,17 @@ export const cards = pgTable(
       .$type<Attachment[]>()
       .notNull()
       .default([]),
+    parentId: text("parent_id"),
     updatedAt: bigint("updated_at", { mode: "number" }).notNull(),
     deletedAt: bigint("deleted_at", { mode: "number" }),
     stamps: jsonb("stamps").$type<Card["stamps"]>().notNull().default({}),
     bodyConflict: jsonb("body_conflict").$type<Card["bodyConflict"]>(),
     seq: integer("seq").notNull(),
   },
-  (t) => [index("cards_board_seq").on(t.boardId, t.seq)]
+  (t) => [
+    index("cards_board_seq").on(t.boardId, t.seq),
+    index("cards_parent").on(t.parentId),
+  ]
 )
 
 /**
