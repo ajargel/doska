@@ -10,20 +10,26 @@ import {
 } from "../helpers"
 
 test.describe("marking a column done", () => {
+  test("a new board's Done column starts marked", async ({ page }) => {
+    await createBoard(page)
+
+    await expect(columnDoneBadge(page, "Done")).toBeVisible()
+    await expect(columnDoneBadge(page, "To Do")).toHaveCount(0)
+  })
+
   test("badges the column and persists across reload", async ({ page }) => {
     await createBoard(page)
 
-    await expect(columnDoneBadge(page, "Done")).toHaveCount(0)
+    await expect(columnDoneBadge(page, "In Progress")).toHaveCount(0)
 
-    await setColumnDone(page, "Done", true)
+    await setColumnDone(page, "In Progress", true)
 
     await page.reload()
-    await expect(columnDoneBadge(page, "Done")).toBeVisible()
+    await expect(columnDoneBadge(page, "In Progress")).toBeVisible()
   })
 
   test("un-marking a done column clears the flag", async ({ page }) => {
     await createBoard(page)
-    await setColumnDone(page, "Done", true)
     await setColumnDone(page, "Done", false)
 
     await page.reload()
@@ -32,7 +38,6 @@ test.describe("marking a column done", () => {
 
   test("marking a second column done keeps the first", async ({ page }) => {
     await createBoard(page)
-    await setColumnDone(page, "Done", true)
     await setColumnDone(page, "In Progress", true)
 
     await expect(columnDoneBadge(page, "Done")).toBeVisible()
@@ -70,6 +75,8 @@ test.describe("marking a column done", () => {
     page,
   }) => {
     const deckId = await createBoard(page)
+    // A new board's Done column starts marked; take it off to have none.
+    await setColumnDone(page, "Done", false)
     await addCard(page, "In Progress")
     await retitleCard(page, "Untitled card", "Needs a done column")
 

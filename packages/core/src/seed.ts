@@ -363,7 +363,9 @@ export const BOARD_COLUMNS: Column[] = [
     position: "a2",
     dashboardId: "",
     collapsed: false,
-    done: false,
+    // Marked from the start, so sub-task progress and the digest's tick box
+    // work on a new board without setup.
+    done: true,
     stamps: {},
     color: "",
     updatedAt: 0,

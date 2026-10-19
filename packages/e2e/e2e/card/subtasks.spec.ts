@@ -13,7 +13,6 @@ import {
   openBoardMenu,
   openCard,
   openCardMenu,
-  openColumnMenu,
   panelField,
   retitleCard,
 } from "../helpers"
@@ -53,9 +52,7 @@ test.describe("sub-tasks", () => {
     ).toContainText("0/1")
 
     // Finishing the sub-task moves the parent's progress. A new board's Done
-    // column only counts as done once marked.
-    await openColumnMenu(page, "Done")
-    await page.getByRole("menuitem", { name: "Mark cards as done" }).click()
+    // column starts marked done.
     // To Do → In Progress → Done
     await dragCardByTitle(page, "Write docs", ["ArrowRight", "ArrowRight"])
     await expect(

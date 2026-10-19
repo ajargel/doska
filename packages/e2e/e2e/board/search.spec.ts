@@ -8,7 +8,6 @@ import {
   fieldText,
   panelField,
   retitleCard,
-  setColumnDone,
   signIn,
 } from "../helpers"
 
@@ -151,7 +150,6 @@ test.describe("card search", () => {
     page,
   }) => {
     await createBoard(page)
-    await setColumnDone(page, "Done", true)
     await seedCard(page, "Done", "Shipped the redesign")
 
     await openSearch(page)
