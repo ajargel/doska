@@ -342,15 +342,44 @@ export function registerCardTools(server: McpServer, board: Board): void {
     {
       title: "Delete card",
       description:
-        "Delete a card. This syncs to every device and cannot be undone.",
+        "Delete a card and its sub-tasks. This syncs to every device and " +
+        "cannot be undone here.",
       inputSchema: { boardId: z.string(), cardId },
     },
     async ({ boardId, cardId }) => {
-      const card = tombstoneCard(await board.card(boardId, cardId), board.now())
-      await board.pushBoard(boardId, [{ store: "cards", record: card }])
-      return reply({ deleted: card.id })
+      const now = board.now()
+      const card = tombstoneCard(await board.card(boardId, cardId), now)
+      const { cards } = await board.board(boardId)
+      // One stamp for the lot, so the app's restore brings them back together.
+      const subtasks = subtasksOf(cards, cardId).map((c) =>
+        tombstoneCard(c, now)
+      )
+      await board.pushBoard(
+        boardId,
+        [card, ...subtasks].map((record) => ({ store: "cards", record }))
+      )
+      return reply({
+        deleted: card.id,
+        ...(subtasks.length > 0 && { subtasks: subtasks.map((c) => c.id) }),
+      })
     }
   )
+}
+
+/** Every live card below `id`, parents first. Stops on a loop. */
+function subtasksOf(cards: Card[], id: string): Card[] {
+  const out: Card[] = []
+  const seen = new Set([id])
+  const queue = [id]
+  for (let next = queue.shift(); next !== undefined; next = queue.shift()) {
+    for (const child of cards) {
+      if (child.parentId !== next || seen.has(child.id)) continue
+      seen.add(child.id)
+      out.push(child)
+      queue.push(child.id)
+    }
+  }
+  return out
 }
 
 /** Where a card lands in a column: next to an anchor card if one is named, else

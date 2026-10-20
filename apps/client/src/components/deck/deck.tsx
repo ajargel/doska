@@ -159,6 +159,7 @@ export function Deck({
           ) : dashboard.lanes?.enabled ? (
             <>
               <LaneBoard
+                boardId={dashboard.id}
                 columns={orderedColumns}
                 cards={visible.cards}
                 lanes={dashboard.lanes}

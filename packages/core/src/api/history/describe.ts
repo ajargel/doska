@@ -17,6 +17,9 @@ type Data = {
   fromBoard?: string
   toBoard?: string
   toCard?: string
+  /** On a `parent` edit: the card it left, and the one it joined. */
+  fromParent?: string | null
+  toParent?: string | null
 }
 
 type ListField = "tags" | "users" | "attachments"
@@ -107,8 +110,32 @@ function deadlineLabel(date: string): string {
   return formatDeadlineShort(date)
 }
 
+/** "made Write docs a sub-task of [Launch]" / "detached Write docs from [Launch]" */
+function describeParent(data: Data, name: EntryPart[]): EntryPart[] {
+  const card = (title: unknown, cardId?: string | null): EntryPart => ({
+    kind: "title",
+    text: asText(title) || "Untitled card",
+    ...(cardId && { cardId }),
+  })
+  if (data.toParent)
+    return [
+      text("made"),
+      ...name,
+      text("a sub-task of"),
+      card(data.to, data.toParent),
+    ]
+  return [
+    text("detached"),
+    ...name,
+    text("from"),
+    card(data.from, data.fromParent),
+  ]
+}
+
 function describeEdit(data: Data, name: EntryPart[]): EntryPart[] | null {
   switch (data.field) {
+    case "parent":
+      return describeParent(data, name)
     case "priority":
       return describeValue("priority", name, priorityLabel(asText(data.to)))
     case "deadline":

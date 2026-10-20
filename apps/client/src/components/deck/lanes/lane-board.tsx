@@ -1,10 +1,11 @@
 import { Droppable } from "@hello-pangea/dnd"
-import { useState } from "react"
 import { ChevronDown, ChevronRight } from "lucide-react"
 import { cn } from "@doska/ui-kit"
 import {
   groupByLane,
   laneOf,
+  setLaneCollapsed,
+  useCollapsedLanes,
   sortCards,
   type Card,
   type CardPatch,
@@ -19,6 +20,7 @@ import { ColumnBox } from "../../column/column-view"
 import { ColumnHeader } from "../../column/column-header"
 
 interface IProps {
+  boardId: string
   columns: Column[]
   /** The cards the board shows, already filtered. */
   cards: Card[]
@@ -46,6 +48,7 @@ const laneName = (lane: LaneKey) => (lane === null ? "Other" : `#${lane}`)
 
 /** The board split into tag lanes: the column heads once, then a row per lane. */
 export function LaneBoard({
+  boardId,
   columns,
   cards,
   lanes,
@@ -65,14 +68,10 @@ export function LaneBoard({
   onChangeColumnDone,
   onDeleteColumn,
 }: IProps) {
-  const [collapsed, setCollapsed] = useState<Set<LaneKey>>(new Set())
+  // Remembered per device, like a collapsed sidebar folder.
+  const isCollapsed = useCollapsedLanes(boardId)
   const toggle = (lane: LaneKey) =>
-    setCollapsed((prev) => {
-      const next = new Set(prev)
-      if (next.has(lane)) next.delete(lane)
-      else next.add(lane)
-      return next
-    })
+    setLaneCollapsed(boardId, lane, !isCollapsed(lane))
 
   const dragged = draggingId ? tree.get(draggingId) : undefined
   // A sub-task rides with its tree, so only its own lane takes it.
@@ -104,7 +103,7 @@ export function LaneBoard({
       </div>
 
       {groupByLane(cards, lanes, tree).map(({ lane, cards: inLane }) => {
-        const isOpen = !collapsed.has(lane)
+        const isOpen = !isCollapsed(lane)
         const name = laneName(lane)
         return (
           <section

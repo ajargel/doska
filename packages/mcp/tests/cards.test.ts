@@ -50,12 +50,17 @@ const member: Member = {
 
 class MemoryStore implements BoardStore {
   pushed: Change[] = []
+  private readonly extra: Card[]
+  constructor(extra: Card[] = []) {
+    this.extra = extra
+  }
   now = () => now
   readDashboards = () => Promise.resolve([])
   readBoard = () =>
     Promise.resolve<Change[]>([
       { store: "columns", record: column },
       { store: "cards", record: card },
+      ...this.extra.map((record): Change => ({ store: "cards", record })),
       ...this.pushed,
     ])
   pushDashboards = () => Promise.resolve()
@@ -69,8 +74,8 @@ class MemoryStore implements BoardStore {
 type Handler = (args: Record<string, unknown>) => Promise<unknown>
 
 /** The card tools registered on a stand-in server, callable by name. */
-function cardTools() {
-  const store = new MemoryStore()
+function cardTools(extra: Card[] = []) {
+  const store = new MemoryStore(extra)
   const handlers = new Map<string, Handler>()
   const server = {
     registerTool: (name: string, _config: unknown, handler: Handler) =>
@@ -177,6 +182,21 @@ describe("move_card", () => {
 })
 
 describe("delete_card", () => {
+  it("takes the card's sub-tasks with it, under one stamp", async () => {
+    const child = { ...card, id: "card-2", parentId: "card-1" }
+    const grandchild = { ...card, id: "card-3", parentId: "card-2" }
+    const unrelated = { ...card, id: "card-4" }
+    const { call, store } = cardTools([child, grandchild, unrelated])
+    await call("delete_card", {})
+
+    const deleted = store.pushed.flatMap((c) =>
+      c.store === "cards" && c.record.deletedAt !== null ? [c.record.id] : []
+    )
+    expect(deleted).toEqual(["card-1", "card-2", "card-3"])
+    for (const change of store.pushed)
+      if (change.store === "cards") expect(change.record.deletedAt).toBe(now)
+  })
+
   it("touches only deleted", async () => {
     const { call, pushedCard } = cardTools()
     await call("delete_card", {})

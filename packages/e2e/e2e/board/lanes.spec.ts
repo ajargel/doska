@@ -6,8 +6,10 @@ import {
   cardPanel,
   closeCard,
   createBoard,
+  menu,
   openBoardMenu,
   openCard,
+  openCardMenu,
   panelField,
   retitleCard,
 } from "../helpers"
@@ -153,5 +155,57 @@ test.describe("swimlanes", () => {
     await dragInto(page, "Write docs", laneCell(page, "To Do", "Other"))
     await expect(frontend.getByText("Write docs")).toBeVisible()
     await expect(tagChip(card(page, "Write docs"), "frontend")).toHaveCount(0)
+  })
+
+  test("the card menu moves a card between lanes, for keyboard users too", async ({
+    page,
+  }) => {
+    await boardWithCards(page, { Alpha: ["frontend"] })
+    await showLanes(page, ["frontend", "backend"])
+
+    await openCardMenu(page, "Alpha")
+    await menu(page, "Card actions")
+      .getByRole("menuitem", { name: "Move to lane" })
+      .click()
+    await page.getByRole("menuitem", { name: "#backend" }).click()
+
+    const backend = laneCell(page, "To Do", "#backend")
+    await expect(backend.getByText("Alpha")).toBeVisible()
+    await expect(tagChip(card(page, "Alpha"), "backend")).toBeVisible()
+    await expect(tagChip(card(page, "Alpha"), "frontend")).toHaveCount(0)
+  })
+
+  test("a sub-task's menu offers no lane of its own", async ({ page }) => {
+    await boardWithCards(page, { Launch: ["frontend"] })
+    await openCard(page, "Launch")
+    await cardPanel(page).getByRole("button", { name: "Add sub-task" }).click()
+    await expect(panelField(page, "Title")).toHaveValue("")
+    await panelField(page, "Title").click()
+    await panelField(page, "Title").fill("Write docs")
+    await closeCard(page)
+    await showLanes(page, ["frontend"])
+
+    await openCardMenu(page, "Write docs")
+    await expect(
+      menu(page, "Card actions").getByRole("menuitem", {
+        name: "Lane follows its top-level card",
+      })
+    ).toBeDisabled()
+  })
+
+  test("a collapsed lane stays collapsed after a reload", async ({ page }) => {
+    await boardWithCards(page, { Alpha: ["frontend"] })
+    await showLanes(page, ["frontend"])
+
+    const header = page.getByRole("button", { name: /^#frontend/ })
+    await header.click()
+    await expect(header).toHaveAttribute("aria-expanded", "false")
+    await expect(laneCell(page, "To Do", "#frontend")).toHaveCount(0)
+
+    await page.reload()
+    await expect(
+      page.getByRole("button", { name: /^#frontend/ })
+    ).toHaveAttribute("aria-expanded", "false")
+    await expect(laneCell(page, "To Do", "Other")).toBeVisible()
   })
 })

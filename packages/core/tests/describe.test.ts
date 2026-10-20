@@ -119,3 +119,25 @@ describe("describeEntry", () => {
     ])
   })
 })
+
+describe("describeEntry: sub-task links", () => {
+  it("joining a parent links to it", () => {
+    const data = { field: "parent", from: "", to: "Launch", toParent: "p1" }
+    expect(describeEntry(entry("edit", data))).toEqual([
+      text("made"),
+      title,
+      text("a sub-task of"),
+      { kind: "title", text: "Launch", cardId: "p1" },
+    ])
+  })
+
+  it("leaving one names the parent it left", () => {
+    const data = { field: "parent", from: "Launch", to: "", fromParent: "p1" }
+    expect(describeEntry(entry("edit", data))).toEqual([
+      text("detached"),
+      title,
+      text("from"),
+      { kind: "title", text: "Launch", cardId: "p1" },
+    ])
+  })
+})

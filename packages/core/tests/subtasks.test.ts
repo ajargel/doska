@@ -62,6 +62,25 @@ describe("setCardParent", () => {
     expect(stored("other").parentId).toBeNull()
   })
 
+  it("records the link and the unlink in the card's history", async () => {
+    const { setCardParent } = await ops()
+    const { db } = await import("../src/api/db/db")
+    await setCardParent("other", "leaf")
+    await setCardParent("other", null)
+
+    const rows = (await db.getHistory("other")).map((h) => h.data)
+    expect(rows).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          field: "parent",
+          to: "leaf",
+          toParent: "leaf",
+        }),
+        expect.objectContaining({ field: "parent", from: "leaf", to: "" }),
+      ])
+    )
+  })
+
   it("refuses a link that would close a loop", async () => {
     const { setCardParent } = await ops()
     await expect(setCardParent("root", "leaf")).rejects.toThrow()

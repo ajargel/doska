@@ -124,6 +124,16 @@ test.describe("sub-tasks", () => {
       .click()
     await page.getByRole("menuitem", { name: "Detach from Epic" }).click()
     await expect(parentChip(page, "Story", "Epic")).toHaveCount(0)
+
+    // Both show in the card's history.
+    await expect(page.getByRole("menu")).toHaveCount(0)
+    await openCardMenu(page, "Story")
+    await menu(page, "Card actions")
+      .getByRole("menuitem", { name: "History" })
+      .click()
+    const history = page.getByRole("dialog")
+    await expect(history.getByText("a sub-task of")).toBeVisible()
+    await expect(history.getByText("detached")).toBeVisible()
   })
 
   test("hiding sub-tasks leaves only top-level cards", async ({ page }) => {
